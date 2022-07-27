@@ -16,6 +16,9 @@ function getCodeName
 
 function analyzeManual
 {
+	# Make sure no other programms are blocking the port
+	pkill -9 java
+
 	# Red Manual: Xox
 	# Green Manual: BookStore
 	# Blue Manual: BookStore
@@ -51,10 +54,20 @@ function analyzeManual
 	else
 		cd $CODENAME-File-Upload/$MANUAL
 		mvn -q clean package spring-boot:run &
+		RESTPID=$!
 		sleep 15
-		pkill -9 java
-		cd -
-		echo OK
+		# check if the program is still running. If not that means it crashed...
+		ALIVE=$(ps -ax | grep $! | grep Java)
+		# if alive not empty, it is still runing
+		if [ -z "$ALIVE" ]; then
+                    echo " * Manual: FAILED TO START" >> $BASEDIR/$REPORT
+		else
+			# kill it anyway, pass on	
+			pkill -9 java
+			cd -
+			## TODO: generate actual success rate report
+                        echo " * Manual: OK, XX/XX" >> $BASEDIR/$REPORT
+		fi
 	fi
 }
 
