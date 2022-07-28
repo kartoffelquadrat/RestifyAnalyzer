@@ -18,7 +18,7 @@ function getCodeName
 }
 
 ## Individual method testing for all Xox endpoints
-## INcase of failure there are two lines with "Time" but only one of them has a leading comma
+## In case of failure there are two lines with "Time" but only one of them has a leading comma
 function testXox
 {
 	cd $XOXTESTDIR
@@ -39,9 +39,44 @@ function testXox
 	cd -
 }
 
+## Individual method testing for all BookStore endpoints
+## In case of failure there are two lines with "Time" but only one of them has a leading comma
+function testBookStore
+{
+	cd $BSTESTDIR
+
+        TEST1=$(mvn -Dtest=AssortmentTest#testIsbnsGet test | grep ', Time')
+	echo "     * [GET]  /bookstore/isbns $TEST1" >> $BASEDIR/$REPORT
+	TEST2=$(mvn -Dtest=AssortmentTest#testIsbnsIsbnGet test | grep ', Time')
+	echo "     * [GET]  /bookstore/isbns/{isbn} $TEST2" >> $BASEDIR/$REPORT
+	TEST3=$(mvn -Dtest=AssortmentTest#testIsbnsIsbnPut test | grep ', Time')
+	echo "     * [PUT]  /bookstore/isbns/{isbn} $TEST3" >> $BASEDIR/$REPORT
+
+	TEST4=$(mvn -Dtest=StockLocationsTest#testStocklocationsGet test | grep ', Time')
+	echo "     * [GET]  /bookstore/stocklocations $TEST4" >> $BASEDIR/$REPORT
+	TEST5=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationGet test | grep ', Time')
+	echo "     * [GET]  /bookstore/stocklocations/{location} $TEST5" >> $BASEDIR/$REPORT
+	TEST6=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationIsbnsGet test | grep ', Time')
+	echo "     * [GET]  /bookstore/stocklocations/{location}/isbns $TEST6" >> $BASEDIR/$REPORT
+	TEST7=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationIsbnsPost test | grep ', Time')
+	echo "     * [POST] /bookstore/stocklocations/{location}/isbns $TEST7" >> $BASEDIR/$REPORT
+
+	TEST8=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsGet test | grep ', Time')
+	echo "     * [GET]  /bookstore/isbns/{isbn}/comments $TEST8" >> $BASEDIR/$REPORT
+	TEST9=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsPost test | grep ', Time')
+	echo "     * [POST] /bookstore/isbns/{isbn}/comments $TEST9" >> $BASEDIR/$REPORT
+	TEST10=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsDelete test | grep ', Time')
+	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments $TEST10" >> $BASEDIR/$REPORT
+	TEST11=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsCommentPost test | grep ', Time')
+	echo "     * [POST] /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT
+	TEST12=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsCommentDelete test | grep ', Time')
+	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT
+	cd -
+}
+
 function analyzeManual
 {
-	# Make sure no other programms are blocking the port
+	# Make sure no other programs are blocking the port
 	pkill -9 java
 
 	# Red Manual: Xox
@@ -83,16 +118,42 @@ function analyzeManual
 		sleep 15
 		# check if the program is still running. If not that means it crashed...
 		ALIVE=$(ps -ax | grep $! | grep Java)
-		# if alive not empty, it is still runing
+		# if alive not empty, it is still running
 		if [ -z "$ALIVE" ]; then
-                    echo " * Manual: FAILED TO START" >> $BASEDIR/$REPORT
+                    echo " * Manual: NOT RUNNABLE" >> $BASEDIR/$REPORT
 		else
 			# kill it anyway, pass on	
 			pkill -9 java
 			cd -
 			## TODO: generate actual success rate report, depending on which program was used
-			testXox
-                        echo " * Manual: OK, XX/XX" >> $BASEDIR/$REPORT
+
+			## Red and Yellow -> Xox
+			## Green and Blue -> BookStore
+ 			
+			case $GROUP in
+
+        			Red )
+				testXox
+	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				;;
+
+    		    	Green )
+				testBookStore
+	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				;;
+
+  		      	Blue )
+				testBookStore
+	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				;;
+
+     		   	Yellow )
+				testXox
+	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				;;
+
+			esac
+
 		fi
 	fi
 }
