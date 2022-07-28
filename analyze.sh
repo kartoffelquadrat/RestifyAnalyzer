@@ -3,6 +3,7 @@
 ## Maximilian Schiedermeier, 2022
 #! /bin/bash
 
+#set -x
 UPLOADDIR=/Users/schieder/Desktop/uploads
 BASEDIR=$(pwd)
 REPORT=report.txt
@@ -17,16 +18,24 @@ function getCodeName
 }
 
 ## Individual method testing for all Xox endpoints
+## INcase of failure there are two lines with "Time" but only one of them has a leading comma
 function testXox
 {
 	cd $XOXTESTDIR
-        mvn -Dtest=XoxTest#testXoxGet test | grep Time
-	mvn -Dtest=XoxTest#testXoxPost test | grep Time
-	mvn -Dtest=XoxTest#testXoxIdGet test | grep Time
-	mvn -Dtest=XoxTest#testXoxIdDelete test | grep Time
-	mvn -Dtest=XoxTest#testXoxIdBoardGet test | grep Time
-	mvn -Dtest=XoxTest#testXoxIdPlayersGet test | grep Time
-	mvn -Dtest=XoxTest#testXoxIdPlayersIdActionsGet test | grep Time
+        TEST1=$(mvn -Dtest=XoxTest#testXoxGet test | grep ', Time')
+	echo "     * [GET] /xox $TEST1" >> $BASEDIR/$REPORT
+	TEST2=$(mvn -Dtest=XoxTest#testXoxPost test | grep ', Time')
+	echo "     * [POST] /xox $TEST2" >> $BASEDIR/$REPORT
+	TEST3=$(mvn -Dtest=XoxTest#testXoxIdGet test | grep ', Time')
+	echo "     * [GET] /xox/{gameid} $TEST3" >> $BASEDIR/$REPORT
+	TEST4=$(mvn -Dtest=XoxTest#testXoxIdDelete test | grep ', Time')
+	echo "     * [DELETE] /xox/{gameid} $TEST4" >> $BASEDIR/$REPORT
+	TEST5=$(mvn -Dtest=XoxTest#testXoxIdBoardGet test | grep ', Time')
+	echo "     * [GET] /xox/{gameid/board $TEST5" >> $BASEDIR/$REPORT
+	TEST6=$(mvn -Dtest=XoxTest#testXoxIdPlayersGet test | grep ', Time')
+	echo "     * [GET] /xox/{gameid}/players $TEST6" >> $BASEDIR/$REPORT
+	TEST7=$(mvn -Dtest=XoxTest#testXoxIdPlayersIdActionsGet test | grep ', Time')
+	echo "     * [GET] /xox/{gameid}/actions $TEST7" >> $BASEDIR/$REPORT
 	cd -
 }
 
@@ -69,7 +78,7 @@ function analyzeManual
 		
 	else
 		cd $CODENAME-File-Upload/$MANUAL
-		mvn -q clean package spring-boot:run & > /dev/null
+		mvn -q clean package spring-boot:run > /tmp/output 2>&1 &
 		RESTPID=$!
 		sleep 15
 		# check if the program is still running. If not that means it crashed...
@@ -81,7 +90,7 @@ function analyzeManual
 			# kill it anyway, pass on	
 			pkill -9 java
 			cd -
-			## TODO: generate actual success rate report
+			## TODO: generate actual success rate report, depending on which program was used
 			testXox
                         echo " * Manual: OK, XX/XX" >> $BASEDIR/$REPORT
 		fi
