@@ -22,3 +22,39 @@
 
 ## Blue-Fox
 
+ * Manual: RUNNABLE, Tests passed: XX/XX
+```
+[Get]  Isbns                                     0.386 sec
+[Get]  IsbnsIsbn                                 0.331 sec
+[Put]  IsbnsIsbn                                 0.343 sec
+[Get]  Stocklocations                            0.319 sec
+[Get]  StocklocationsStocklocation               0.317 sec
+[Get]  StocklocationsStocklocationIsbns          0.329 sec
+[Post] StocklocationsStocklocationIsbns          0.373 sec
+[Get]  IsbnsIsbnComments                         0.312 sec
+[Post] IsbnsIsbnComments                         0.559 sec <<< FAILURE!
+[Del]  IsbnsIsbnComments                         0.332 sec <<< FAILURE!
+[Post] IsbnsIsbnCommentsComment                  0.365 sec <<< FAILURE!
+[Del]  IsbnsIsbnCommentsComment                  0.398 sec <<< FAILURE!
+```
+
+## Blue-Raccoon
+
+ * Manual: RUNNABLE, Tests passed: XX/XX
+```
+[Get]  Isbns                                     0.6 sec
+[Get]  IsbnsIsbn                                 0.437 sec
+[Put]  IsbnsIsbn                                 0.329 sec <<< FAILURE!
+[Get]  Stocklocations                            0.346 sec
+[Get]  StocklocationsStocklocation               0.322 sec
+[Get]  StocklocationsStocklocationIsbns          0.31 sec
+[Post] StocklocationsStocklocationIsbns          0.408 sec
+[Get]  IsbnsIsbnComments                         0.41 sec
+[Post] IsbnsIsbnComments                         0.345 sec <<< FAILURE!
+[Del]  IsbnsIsbnComments                         0.385 sec <<< FAILURE!
+[Post] IsbnsIsbnCommentsComment                  0.363 sec <<< FAILURE!
+[Del]  IsbnsIsbnCommentsComment                  0.307 sec <<< FAILURE!
+```
+
+## Blue-Turtle
+

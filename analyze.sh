@@ -25,25 +25,51 @@ function generateHotlink
     echo " * [$CODENAME](#$LC_CODENAME)" >> $BASEDIR/$REPORT
 }
 
+## Analyzes the last three characters of a provided string and inferes the corresponding CRUD http method.
+function extractMethod
+{
+   METHOD=$(echo $1 | rev | cut -c -3 | rev)
+   if [ "$METHOD" = "ost" ] ;then
+     METHOD="Post"
+   fi
+   if [ "$METHOD" = "ete" ] ;then
+     METHOD="Del"
+   fi
+   METHOD='['$METHOD']'
+   METHOD=$( printf '%-6s' $METHOD)
+}
+
+function extractResource
+{
+    RESOURCE=$(echo $1 | sed s/Get// | sed s/Put// | sed s/Post// | sed s/Delete//)
+    RESOURCE=$(echo $RESOURCE | cut -d "#" -f 2)
+    RESOURCE=$(echo $RESOURCE | sed s/test//)
+    RESOURCE=$( printf '%-40s' $RESOURCE)
+}
+
+function testEndpoint
+{
+   RESULT=$(mvn -Dtest=$1 test | grep ', Time' | cut -d ":" -f 6)
+   extractMethod $1
+   extractResource $1
+   echo "$METHOD $RESOURCE $RESULT" >> $BASEDIR/$REPORT-tmp
+}
+
 ## Individual method testing for all Xox endpoints
 ## In case of failure there are two lines with "Time" but only one of them has a leading comma
 function testXox
 {
 	cd $XOXTESTDIR
-        TEST1=$(mvn -Dtest=XoxTest#testXoxGet test | grep ', Time')
-	echo "     * [GET] /xox $TEST1" >> $BASEDIR/$REPORT
-	TEST2=$(mvn -Dtest=XoxTest#testXoxPost test | grep ', Time')
-	echo "     * [POST] /xox $TEST2" >> $BASEDIR/$REPORT
-	TEST3=$(mvn -Dtest=XoxTest#testXoxIdGet test | grep ', Time')
-	echo "     * [GET] /xox/{gameid} $TEST3" >> $BASEDIR/$REPORT
-	TEST4=$(mvn -Dtest=XoxTest#testXoxIdDelete test | grep ', Time')
-	echo "     * [DELETE] /xox/{gameid} $TEST4" >> $BASEDIR/$REPORT
-	TEST5=$(mvn -Dtest=XoxTest#testXoxIdBoardGet test | grep ', Time')
-	echo "     * [GET] /xox/{gameid/board $TEST5" >> $BASEDIR/$REPORT
-	TEST6=$(mvn -Dtest=XoxTest#testXoxIdPlayersGet test | grep ', Time')
-	echo "     * [GET] /xox/{gameid}/players $TEST6" >> $BASEDIR/$REPORT
-	TEST7=$(mvn -Dtest=XoxTest#testXoxIdPlayersIdActionsGet test | grep ', Time')
-	echo "     * [GET] /xox/{gameid}/actions $TEST7" >> $BASEDIR/$REPORT
+        echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
+        testEndpoint XoxTest#testXoxGet
+	testEndpoint XoxTest#testXoxPost
+	testEndpoint XoxTest#testXoxIdGet
+	testEndpoint XoxTest#testXoxIdDelete
+	testEndpoint XoxTest#testXoxIdBoardGet
+	testEndpoint XoxTest#testXoxIdPlayersGet
+	testEndpoint XoxTest#testXoxIdPlayersIdActionsGet
+## TODO: Figure out why action post is missing
+        echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
 	cd -
 }
 
@@ -52,33 +78,20 @@ function testXox
 function testBookStore
 {
 	cd $BSTESTDIR
-
-        TEST1=$(mvn -Dtest=AssortmentTest#testIsbnsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/isbns $TEST1" >> $BASEDIR/$REPORT-tmp
-	TEST2=$(mvn -Dtest=AssortmentTest#testIsbnsIsbnGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/isbns/{isbn} $TEST2" >> $BASEDIR/$REPORT-tmp
-	TEST3=$(mvn -Dtest=AssortmentTest#testIsbnsIsbnPut test | grep ', Time')
-	echo "     * [PUT]  /bookstore/isbns/{isbn} $TEST3" >> $BASEDIR/$REPORT-tmp
-
-	TEST4=$(mvn -Dtest=StockLocationsTest#testStocklocationsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/stocklocations $TEST4" >> $BASEDIR/$REPORT-tmp
-	TEST5=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/stocklocations/{location} $TEST5" >> $BASEDIR/$REPORT-tmp
-	TEST6=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationIsbnsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/stocklocations/{location}/isbns $TEST6" >> $BASEDIR/$REPORT-tmp
-	TEST7=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationIsbnsPost test | grep ', Time')
-	echo "     * [POST] /bookstore/stocklocations/{location}/isbns $TEST7" >> $BASEDIR/$REPORT-tmp
-
-	TEST8=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/isbns/{isbn}/comments $TEST8" >> $BASEDIR/$REPORT-tmp
-	TEST9=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsPost test | grep ', Time')
-	echo "     * [POST] /bookstore/isbns/{isbn}/comments $TEST9" >> $BASEDIR/$REPORT-tmp
-	TEST10=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsDelete test | grep ', Time')
-	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments $TEST10" >> $BASEDIR/$REPORT-tmp
-	TEST11=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsCommentPost test | grep ', Time')
-	echo "     * [POST] /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT-tmp
-	TEST12=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsCommentDelete test | grep ', Time')
-	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT-tmp
+        echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
+        testEndpoint AssortmentTest#testIsbnsGet
+	testEndpoint AssortmentTest#testIsbnsIsbnGet
+	testEndpoint AssortmentTest#testIsbnsIsbnPut
+	testEndpoint StockLocationsTest#testStocklocationsGet
+	testEndpoint StockLocationsTest#testStocklocationsStocklocationGet
+	testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsGet
+	testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsPost
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsGet
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsPost
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsDelete
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentPost
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentDelete
+        echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
 	cd -
 }
 
