@@ -97,6 +97,14 @@ function testBookStore
 	cd -
 }
 
+## Inspects the most recent report tmp file and computes the success ratio
+function computeSuccessRatio
+{
+	TOTAL=$(cat $BASEDIR/$REPORT-tmp | grep -v \` | wc -l)
+	SUCCESS=$(cat $BASEDIR/$REPORT-tmp | grep -v \` | grep -v FAILURE | wc -l)
+	RATIO=$SUCCESS/$TOTAL
+}
+
 function analyzeCodes
 {
 
@@ -157,25 +165,29 @@ function analyzeCodes
 
         			Red )
 				testXox
-	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				computeSuccessRatio
+	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
                                 cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
     		    	Green )
 				testBookStore
-	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				computeSuccessRatio
+	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
                                 cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
   		      	Blue )
 				testBookStore
-	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				computeSuccessRatio
+	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
                                 cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
      		   	Yellow )
 				testXox
-	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+				computeSuccessRatio
+	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
                                 cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
