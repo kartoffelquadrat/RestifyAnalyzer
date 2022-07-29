@@ -1,20 +1,24 @@
 # RESTify Study - Unit Test Report
+ * [Blue-Fox](#blue-fox)
+ * [Blue-Raccoon](#blue-raccoon)
+ * [Blue-Turtle](#blue-turtle)
+ * [Blue-Unicorn](#blue-unicorn)
+ * [Green-Fox](#green-fox)
+ * [Green-Squid](#green-squid)
+ * [Green-Turtle](#green-turtle)
+ * [Green-Unicorn](#green-unicorn)
+ * [Green-Zebra](#green-zebra)
+ * [Red-Fox](#red-fox)
+ * [Red-Koala](#red-koala)
+ * [Red-Raccoon](#red-raccoon)
+ * [Red-Squid](#red-squid)
+ * [Red-Turtle](#red-turtle)
+ * [Red-Unicorn](#red-unicorn)
+ * [Yellow-Fox](#yellow-fox)
+ * [Yellow-Raccoon](#yellow-raccoon)
+ * [Yellow-Turtle](#yellow-turtle)
+ * [Yellow-Unicorn](#yellow-unicorn)
+ * [Yellow-Zebra](#yellow-zebra)
 
 ## Blue-Fox
-
- * Manual: RUNNABLE, Tests passed: XX/XX
-     * [GET]  /bookstore/isbns Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.398 sec
-     * [GET]  /bookstore/isbns/{isbn} Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.333 sec
-     * [PUT]  /bookstore/isbns/{isbn} Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.347 sec
-     * [GET]  /bookstore/stocklocations Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.32 sec
-     * [GET]  /bookstore/stocklocations/{location} Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.324 sec
-     * [GET]  /bookstore/stocklocations/{location}/isbns Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.319 sec
-     * [POST] /bookstore/stocklocations/{location}/isbns Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.32 sec
-     * [GET]  /bookstore/isbns/{isbn}/comments Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.336 sec
-     * [POST] /bookstore/isbns/{isbn}/comments Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.36 sec <<< FAILURE!
-     * [DEL]  /bookstore/isbns/{isbn}/comments Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.327 sec <<< FAILURE!
-     * [POST] /bookstore/isbns/{isbn}/comments/{commentid} Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.323 sec <<< FAILURE!
-     * [DEL]  /bookstore/isbns/{isbn}/comments/{commentid} Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.323 sec <<< FAILURE!
-
-## Blue-Raccoon
 

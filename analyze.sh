@@ -17,6 +17,14 @@ function getCodeName
     CODENAME=$GROUP-$ANIMAL
 }
 
+## Generates a markdinw anchor to the corresponding participant entry
+function generateHotlink
+{
+    getCodeName $1
+    LC_CODENAME=$(echo $CODENAME | tr '[:upper:]' '[:lower:]')
+    echo " * [$CODENAME](#$LC_CODENAME)" >> $BASEDIR/$REPORT
+}
+
 ## Individual method testing for all Xox endpoints
 ## In case of failure there are two lines with "Time" but only one of them has a leading comma
 function testXox
@@ -188,8 +196,11 @@ fi
 touch $REPORT
 echo "# RESTify Study - Unit Test Report" >> $REPORT
 
-## Run the actual analysis
+## Generate hotlinks
 cd $UPLOADDIR
+for i in [A-Z]*; do generateHotlink $i; done
+
+## Run the actual analysis
 for i in [A-Z]*; do analyzeUpload $i; done
 
 cd $ORIGIN
