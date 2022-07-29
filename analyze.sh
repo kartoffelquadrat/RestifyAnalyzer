@@ -17,7 +17,7 @@ function getCodeName
     CODENAME=$GROUP-$ANIMAL
 }
 
-## Generates a markdinw anchor to the corresponding participant entry
+## Generates a markdown anchor to the corresponding participant entry
 function generateHotlink
 {
     getCodeName $1
@@ -43,15 +43,17 @@ function extractResource
 {
     RESOURCE=$(echo $1 | sed s/Get// | sed s/Put// | sed s/Post// | sed s/Delete//)
     RESOURCE=$(echo $RESOURCE | cut -d "#" -f 2)
-    RESOURCE=$(echo $RESOURCE | sed s/test//)
-    RESOURCE=$( printf '%-40s' $RESOURCE)
+    RESOURCE=$(echo $RESOURCE | sed s/test// | sed -r -e "s/([^A-Z])([A-Z])/\1\/\2/g")
+    RESOURCE=$(echo $RESOURCE | tr '[:upper:]' '[:lower:]')
+    RESOURCE=/$2/$RESOURCE
+    RESOURCE=$( printf '%-48s' $RESOURCE)
 }
 
 function testEndpoint
 {
    RESULT=$(mvn -Dtest=$1 test | grep ', Time' | cut -d ":" -f 6)
    extractMethod $1
-   extractResource $1
+   extractResource $1 $2
    echo "$METHOD $RESOURCE $RESULT" >> $BASEDIR/$REPORT-tmp
 }
 
@@ -61,13 +63,13 @@ function testXox
 {
 	cd $XOXTESTDIR
         echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
-        testEndpoint XoxTest#testXoxGet
-	testEndpoint XoxTest#testXoxPost
-	testEndpoint XoxTest#testXoxIdGet
-	testEndpoint XoxTest#testXoxIdDelete
-	testEndpoint XoxTest#testXoxIdBoardGet
-	testEndpoint XoxTest#testXoxIdPlayersGet
-	testEndpoint XoxTest#testXoxIdPlayersIdActionsGet
+        testEndpoint XoxTest#testXoxGet xox
+	testEndpoint XoxTest#testXoxPost xox
+	testEndpoint XoxTest#testXoxIdGet xox
+	testEndpoint XoxTest#testXoxIdDelete xox
+	testEndpoint XoxTest#testXoxIdBoardGet xox
+	testEndpoint XoxTest#testXoxIdPlayersGet xox
+	testEndpoint XoxTest#testXoxIdPlayersIdActionsGet xox
 ## TODO: Figure out why action post is missing
         echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
 	cd -
@@ -79,18 +81,18 @@ function testBookStore
 {
 	cd $BSTESTDIR
         echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
-        testEndpoint AssortmentTest#testIsbnsGet
-	testEndpoint AssortmentTest#testIsbnsIsbnGet
-	testEndpoint AssortmentTest#testIsbnsIsbnPut
-	testEndpoint StockLocationsTest#testStocklocationsGet
-	testEndpoint StockLocationsTest#testStocklocationsStocklocationGet
-	testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsGet
-	testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsPost
-	testEndpoint CommentsTest#testIsbnsIsbnCommentsGet
-	testEndpoint CommentsTest#testIsbnsIsbnCommentsPost
-	testEndpoint CommentsTest#testIsbnsIsbnCommentsDelete
-	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentPost
-	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentDelete
+        testEndpoint AssortmentTest#testIsbnsGet bookstore
+	testEndpoint AssortmentTest#testIsbnsIsbnGet bookstore
+	testEndpoint AssortmentTest#testIsbnsIsbnPut bookstore
+	testEndpoint StockLocationsTest#testStocklocationsGet bookstore
+	testEndpoint StockLocationsTest#testStocklocationsStocklocationGet bookstore
+	testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsGet bookstore
+	testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsPost bookstore
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsGet bookstore
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsPost bookstore
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsDelete bookstore
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentPost bookstore
+	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentDelete bookstore
         echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
 	cd -
 }
