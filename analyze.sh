@@ -6,7 +6,7 @@
 #set -x
 UPLOADDIR=/Users/schieder/Desktop/uploads
 BASEDIR=$(pwd)
-REPORT=report.txt
+REPORT=report.md
 XOXTESTDIR=/Users/schieder/Code/XoxStudyRestTest
 BSTESTDIR=/Users/schieder/Code/BookStoreRestTest
 
@@ -46,38 +46,36 @@ function testBookStore
 	cd $BSTESTDIR
 
         TEST1=$(mvn -Dtest=AssortmentTest#testIsbnsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/isbns $TEST1" >> $BASEDIR/$REPORT
+	echo "     * [GET]  /bookstore/isbns $TEST1" >> $BASEDIR/$REPORT-tmp
 	TEST2=$(mvn -Dtest=AssortmentTest#testIsbnsIsbnGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/isbns/{isbn} $TEST2" >> $BASEDIR/$REPORT
+	echo "     * [GET]  /bookstore/isbns/{isbn} $TEST2" >> $BASEDIR/$REPORT-tmp
 	TEST3=$(mvn -Dtest=AssortmentTest#testIsbnsIsbnPut test | grep ', Time')
-	echo "     * [PUT]  /bookstore/isbns/{isbn} $TEST3" >> $BASEDIR/$REPORT
+	echo "     * [PUT]  /bookstore/isbns/{isbn} $TEST3" >> $BASEDIR/$REPORT-tmp
 
 	TEST4=$(mvn -Dtest=StockLocationsTest#testStocklocationsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/stocklocations $TEST4" >> $BASEDIR/$REPORT
+	echo "     * [GET]  /bookstore/stocklocations $TEST4" >> $BASEDIR/$REPORT-tmp
 	TEST5=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/stocklocations/{location} $TEST5" >> $BASEDIR/$REPORT
+	echo "     * [GET]  /bookstore/stocklocations/{location} $TEST5" >> $BASEDIR/$REPORT-tmp
 	TEST6=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationIsbnsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/stocklocations/{location}/isbns $TEST6" >> $BASEDIR/$REPORT
+	echo "     * [GET]  /bookstore/stocklocations/{location}/isbns $TEST6" >> $BASEDIR/$REPORT-tmp
 	TEST7=$(mvn -Dtest=StockLocationsTest#testStocklocationsStocklocationIsbnsPost test | grep ', Time')
-	echo "     * [POST] /bookstore/stocklocations/{location}/isbns $TEST7" >> $BASEDIR/$REPORT
+	echo "     * [POST] /bookstore/stocklocations/{location}/isbns $TEST7" >> $BASEDIR/$REPORT-tmp
 
 	TEST8=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsGet test | grep ', Time')
-	echo "     * [GET]  /bookstore/isbns/{isbn}/comments $TEST8" >> $BASEDIR/$REPORT
+	echo "     * [GET]  /bookstore/isbns/{isbn}/comments $TEST8" >> $BASEDIR/$REPORT-tmp
 	TEST9=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsPost test | grep ', Time')
-	echo "     * [POST] /bookstore/isbns/{isbn}/comments $TEST9" >> $BASEDIR/$REPORT
+	echo "     * [POST] /bookstore/isbns/{isbn}/comments $TEST9" >> $BASEDIR/$REPORT-tmp
 	TEST10=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsDelete test | grep ', Time')
-	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments $TEST10" >> $BASEDIR/$REPORT
+	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments $TEST10" >> $BASEDIR/$REPORT-tmp
 	TEST11=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsCommentPost test | grep ', Time')
-	echo "     * [POST] /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT
+	echo "     * [POST] /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT-tmp
 	TEST12=$(mvn -Dtest=CommentsTest#testIsbnsIsbnCommentsCommentDelete test | grep ', Time')
-	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT
+	echo "     * [DEL]  /bookstore/isbns/{isbn}/comments/{commentid} $TEST11" >> $BASEDIR/$REPORT-tmp
 	cd -
 }
 
-function analyzeManual
+function analyzeCodes
 {
-	# Make sure no other programs are blocking the port
-	pkill -9 java
 
 	# Red Manual: Xox
 	# Green Manual: BookStore
@@ -87,23 +85,27 @@ function analyzeManual
 
         	Red )
 		MANUAL=XoxInternals
+		ASSISTED=BookStoreModel
 		;;
 
         	Green )
 		MANUAL=BookStoreInternals
+                ASSISTED=XoxModel
 		;;
 
         	Blue )
 		MANUAL=BookStoreInternals
+                ASSISTED=XoxModel
 		;;
 
         	Yellow )
 		MANUAL=XoxInternals
+                ASSISTED=BookStoreModel
 		;;
 
 	esac
 
-	echo -n "   * Testing $MANUAL... "
+	echo  "   * Testing $MANUAL... "
 	cd $UPLOADDIR
 
 	# Verify upload exists
@@ -112,6 +114,8 @@ function analyzeManual
 		echo " * Manual: MISSING" >> $BASEDIR/$REPORT
 		
 	else
+	        # Make sure no other programs are blocking the port
+	        pkill -9 java
 		cd $CODENAME-File-Upload/$MANUAL
 		mvn -q clean package spring-boot:run > /tmp/output 2>&1 &
 		RESTPID=$!
@@ -122,11 +126,7 @@ function analyzeManual
 		if [ -z "$ALIVE" ]; then
                     echo " * Manual: NOT RUNNABLE" >> $BASEDIR/$REPORT
 		else
-			# kill it anyway, pass on	
-			pkill -9 java
-			cd -
-			## TODO: generate actual success rate report, depending on which program was used
-
+			## Program is running, let's test the individual endpoints
 			## Red and Yellow -> Xox
 			## Green and Blue -> BookStore
  			
@@ -134,27 +134,35 @@ function analyzeManual
 
         			Red )
 				testXox
-	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
     		    	Green )
 				testBookStore
-	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
   		      	Blue )
 				testBookStore
-	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
      		   	Yellow )
 				testXox
-	                         echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+	                        echo " * Manual: RUNNABLE, Tests passed: XX/XX" >> $BASEDIR/$REPORT
+                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 				;;
 
 			esac
 
 		fi
+
+		# kill running program, pass on
+		pkill -9 java
+		cd -
 	fi
 }
 
@@ -163,10 +171,12 @@ function analyzeUpload
     getCodeName $1
     echo " > Analyzing $CODENAME"
     cd $BASEDIR
-    echo "# $CODENAME" >> $REPORT
+    echo "" >> $REPORT
+    echo "## $CODENAME" >> $REPORT
+    echo "" >> $REPORT
 
     ## Analyze the manual submission
-    analyzeManual
+    analyzeCodes
 }
 
 ## Main logic
@@ -176,6 +186,7 @@ if [ -f $REPORT ]; then
    rm $REPORT
 fi
 touch $REPORT
+echo "# RESTify Study - Unit Test Report" >> $REPORT
 
 ## Run the actual analysis
 cd $UPLOADDIR
