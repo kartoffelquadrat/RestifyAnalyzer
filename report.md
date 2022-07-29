@@ -24,19 +24,20 @@
 
  * Manual: RUNNABLE, Tests passed:        8/      12
 ```
-[Get]  /bookstore/isbns                                  0.407 sec
-[Get]  /bookstore/isbns/isbn                             0.334 sec
-[Put]  /bookstore/isbns/isbn                             0.336 sec
-[Get]  /bookstore/stocklocations                         0.321 sec
-[Get]  /bookstore/stocklocations/stocklocation           0.316 sec
-[Get]  /bookstore/stocklocations/stocklocation/isbns     0.316 sec
-[Post] /bookstore/stocklocations/stocklocation/isbns     0.315 sec
-[Get]  /bookstore/isbns/isbn/comments                    0.316 sec
-[Post] /bookstore/isbns/isbn/comments                    0.336 sec <<< FAILURE!
+[Get]  /bookstore/isbns                                  0.386 sec
+[Get]  /bookstore/isbns/isbn                             0.33 sec
+[Put]  /bookstore/isbns/isbn                             0.339 sec
+[Get]  /bookstore/stocklocations                         0.309 sec
+[Get]  /bookstore/stocklocations/stocklocation           0.319 sec
+[Get]  /bookstore/stocklocations/stocklocation/isbns     0.32 sec
+[Post] /bookstore/stocklocations/stocklocation/isbns     0.326 sec
+[Get]  /bookstore/isbns/isbn/comments                    0.33 sec
+[Post] /bookstore/isbns/isbn/comments                    0.341 sec <<< FAILURE!
 [Del]  /bookstore/isbns/isbn/comments                    0.331 sec <<< FAILURE!
-[Post] /bookstore/isbns/isbn/comments/comment            0.33 sec <<< FAILURE!
-[Del]  /bookstore/isbns/isbn/comments/comment            0.331 sec <<< FAILURE!
+[Post] /bookstore/isbns/isbn/comments/comment            0.328 sec <<< FAILURE!
+[Del]  /bookstore/isbns/isbn/comments/comment            0.333 sec <<< FAILURE!
 ```
+ * Manual: MISSING
 
 ## Blue-Raccoon
 

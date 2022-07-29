@@ -105,7 +105,44 @@ function computeSuccessRatio
 	RATIO=$SUCCESS/$TOTAL
 }
 
-function analyzeCodes
+function analyzeCode
+{
+	# Verify upload exists
+	if [ ! -d $CODENAME-File-Upload/$1 ]; then
+		echo "Upload not found, skipping"	
+		echo " * Manual: MISSING" >> $BASEDIR/$REPORT
+		
+	else
+	        # Make sure no other programs are blocking the port
+	        pkill -9 java
+		cd $CODENAME-File-Upload/$1
+		mvn -q clean package spring-boot:run > /tmp/output 2>&1 &
+		RESTPID=$!
+		sleep 15
+		# check if the program is still running. If not that means it crashed...
+		ALIVE=$(ps -ax | grep $! | grep Java)
+		# if alive not empty, it is still running
+		if [ -z "$ALIVE" ]; then
+                    echo " * Manual: NOT RUNNABLE" >> $BASEDIR/$REPORT
+		else
+			## Program is running, let's test the individual endpoints (depending on what it is)
+			APP=$(echo $1 | cut -c -1)
+			if [ "$1" = "X" ]; then
+			    testXox
+			else
+			    testBookStore
+			fi
+			computeSuccessRatio
+			echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
+			cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
+		fi
+
+		# kill running program, pass on
+		pkill -9 java
+		cd -
+	fi
+}
+function analyzeBothCodes
 {
 
 	# Red Manual: Xox
@@ -136,69 +173,11 @@ function analyzeCodes
 
 	esac
 
-	echo  "   * Testing $MANUAL... "
 	cd $UPLOADDIR
 
-	# Verify upload exists
-	if [ ! -d $CODENAME-File-Upload/$MANUAL ]; then
-		echo "Upload not found, skipping"	
-		echo " * Manual: MISSING" >> $BASEDIR/$REPORT
-		
-	else
-	        # Make sure no other programs are blocking the port
-	        pkill -9 java
-		cd $CODENAME-File-Upload/$MANUAL
-		mvn -q clean package spring-boot:run > /tmp/output 2>&1 &
-		RESTPID=$!
-		sleep 15
-		# check if the program is still running. If not that means it crashed...
-		ALIVE=$(ps -ax | grep $! | grep Java)
-		# if alive not empty, it is still running
-		if [ -z "$ALIVE" ]; then
-                    echo " * Manual: NOT RUNNABLE" >> $BASEDIR/$REPORT
-		else
-			## Program is running, let's test the individual endpoints
-			## Red and Yellow -> Xox
-			## Green and Blue -> BookStore
- 			
-			case $GROUP in
-
-        			Red )
-				testXox
-				computeSuccessRatio
-	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
-                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
-				;;
-
-    		    	Green )
-				testBookStore
-				computeSuccessRatio
-	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
-                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
-				;;
-
-  		      	Blue )
-				testBookStore
-				computeSuccessRatio
-	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
-                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
-				;;
-
-     		   	Yellow )
-				testXox
-				computeSuccessRatio
-	                        echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
-                                cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
-				;;
-
-			esac
-
-		fi
-
-		# kill running program, pass on
-		pkill -9 java
-		cd -
-	fi
+	echo  "   * Testing $MANUAL... "
+        analyzeCode $MANUAL
+        analyzeCode $ASSISTED
 }
 
 function analyzeUpload
@@ -211,7 +190,7 @@ function analyzeUpload
     echo "" >> $REPORT
 
     ## Analyze the manual submission
-    analyzeCodes
+    analyzeBothCodes
 }
 
 ## Main logic
