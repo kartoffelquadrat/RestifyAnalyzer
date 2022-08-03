@@ -70,6 +70,7 @@ function testXox
 	testEndpoint XoxTest#testXoxIdBoardGet xox
 	testEndpoint XoxTest#testXoxIdPlayersGet xox
 	testEndpoint XoxTest#testXoxIdPlayersIdActionsGet xox
+	testEndpoint XoxTest#testXoxIdPlayersIdActionsPost xox
 ## TODO: Figure out why action post is missing
         echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
 	cd -
@@ -123,17 +124,17 @@ function analyzeCode
 		ALIVE=$(ps -ax | grep $! | grep Java)
 		# if alive not empty, it is still running
 		if [ -z "$ALIVE" ]; then
-                    echo " * Manual: NOT RUNNABLE" >> $BASEDIR/$REPORT
+                    echo " * $2: NOT RUNNABLE" >> $BASEDIR/$REPORT
 		else
 			## Program is running, let's test the individual endpoints (depending on what it is)
 			APP=$(echo $1 | cut -c -1)
-			if [ "$1" = "X" ]; then
+			if [ "$APP" = "X" ]; then
 			    testXox
 			else
 			    testBookStore
 			fi
 			computeSuccessRatio
-			echo " * Manual: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
+			echo " * $2: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
 			cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 		fi
 
@@ -153,31 +154,33 @@ function analyzeBothCodes
 
         	Red )
 		MANUAL=XoxInternals
-		ASSISTED=BookStoreModel
+		ASSISTED=BookStoreModel/generated-maven-project
 		;;
 
         	Green )
 		MANUAL=BookStoreInternals
-                ASSISTED=XoxModel
+                ASSISTED=XoxModel/generated-maven-project
 		;;
 
         	Blue )
 		MANUAL=BookStoreInternals
-                ASSISTED=XoxModel
+                ASSISTED=XoxModel/generated-maven-project
 		;;
 
         	Yellow )
 		MANUAL=XoxInternals
-                ASSISTED=BookStoreModel
+                ASSISTED=BookStoreModel/generated-maven-project
 		;;
 
 	esac
 
 	cd $UPLOADDIR
+	echo  "   * Testing $ASSISTED "
+        analyzeCode $ASSISTED Assisted
 
-	echo  "   * Testing $MANUAL... "
-        analyzeCode $MANUAL
-        analyzeCode $ASSISTED
+	cd $UPLOADDIR
+	echo  "   * Testing $MANUAL "
+        analyzeCode $MANUAL Manual
 }
 
 function analyzeUpload
