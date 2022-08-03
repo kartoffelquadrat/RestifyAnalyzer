@@ -117,8 +117,8 @@ function analyzeCode
 	        # Make sure no other programs are blocking the port
 	        pkill -9 java
 		cd $CODENAME-File-Upload/$1
-		## Try to compile
-                mvn -q clean package > /tmp/output 2>&1
+		## Try to compile, skip all tests (some users did not delete them)
+                mvn -q clean package -Dmaven.test.skip=true > /tmp/output 2>&1
                 COMPILABLE=$?
 
 		## if it did not compile, mark as uncompilable and proceed to next
