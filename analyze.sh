@@ -3,7 +3,7 @@
 ## Maximilian Schiedermeier, 2022
 #! /bin/bash
 
-#set -x
+set -x
 UPLOADDIR=/Users/schieder/Desktop/uploads
 BASEDIR=$(pwd)
 REPORT=report.md
@@ -117,29 +117,44 @@ function analyzeCode
 	        # Make sure no other programs are blocking the port
 	        pkill -9 java
 		cd $CODENAME-File-Upload/$1
-		mvn -q clean package spring-boot:run > /tmp/output 2>&1 &
-		RESTPID=$!
-		sleep 15
-		# check if the program is still running. If not that means it crashed...
-		ALIVE=$(ps -ax | grep $! | grep Java)
-		# if alive not empty, it is still running
-		if [ -z "$ALIVE" ]; then
-                    echo " * $2: NOT RUNNABLE" >> $BASEDIR/$REPORT
-		else
-			## Program is running, let's test the individual endpoints (depending on what it is)
-			APP=$(echo $1 | cut -c -1)
-			if [ "$APP" = "X" ]; then
-			    testXox
-			else
-			    testBookStore
-			fi
-			computeSuccessRatio
-			echo " * $2: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
-			cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
-		fi
+		## Try to compile
+                mvn -q clean package > /tmp/output 2>&1
+                COMPILABLE=$?
 
-		# kill running program, pass on
-		pkill -9 java
+		## if it did not compile, mark as uncompilable and proceed to next
+                if [ ! "$COMPILABLE" == 0 ]; then
+                        # Not compilable. Flag and proceed
+			echo " * $2: NOT COMPILABLE" >> $BASEDIR/$REPORT
+                else
+			# Compilable, lets try to actually run and test it
+			JARFILE=$(find . | grep jar | grep -v javadoc | grep -v sources | grep -v original | grep -v xml)
+			echo $JARFILE
+			#java -jar $JARFILE > /tmp/output 2>&1 &
+			java -jar $JARFILE &
+			RESTPID=$!
+			sleep 15
+			# check if the program is still running. If not that means it crashed...
+			ALIVE=$(ps -ax | grep $! | grep java)
+			# if alive not empty, it is still running
+			if [ -z "$ALIVE" ]; then
+			    echo " * $2: NOT RUNNABLE" >> $BASEDIR/$REPORT
+			else
+				## Program is running, let's test the individual endpoints (depending on what it is)
+				APP=$(echo $1 | cut -c -1)
+				if [ "$APP" = "X" ]; then
+				    testXox
+				else
+				    testBookStore
+				fi
+				computeSuccessRatio
+				echo " * $2: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
+				cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
+			fi
+
+			# kill running program, pass on
+			pkill -9 java
+		fi
+                 
 		cd -
 	fi
 }
