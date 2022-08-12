@@ -114,9 +114,14 @@ function analyzeCode
 		echo " * Manual: MISSING" >> $BASEDIR/$REPORT
 		
 	else
+
 	        # Make sure no other programs are blocking the port
 	        pkill -9 java
 		cd $CODENAME-File-Upload/$1
+
+		# Store all detected spring mappings in a dedicated file
+		grep -nre @ src -A 2| grep Mapping -A 2 > $BASEDIR/$CODENAME-$2.txt
+
 		## Try to compile, skip all tests (some users did not delete them)
                 mvn -q clean package -Dmaven.test.skip=true > /tmp/output 2>&1
                 COMPILABLE=$?
@@ -124,20 +129,20 @@ function analyzeCode
 		## if it did not compile, mark as uncompilable and proceed to next
                 if [ ! "$COMPILABLE" == 0 ]; then
                         # Not compilable. Flag and proceed
-			echo " * $2: NOT COMPILABLE" >> $BASEDIR/$REPORT
+			echo " * [$2: NOT COMPILABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
                 else
 			# Compilable, lets try to actually run and test it
 			JARFILE=$(find . | grep jar | grep -v javadoc | grep -v sources | grep -v original | grep -v xml)
 			echo $JARFILE
-			#java -jar $JARFILE > /tmp/output 2>&1 &
-			java -jar $JARFILE &
+			#java -jar "$JARFILE" > /tmp/output 2>&1 &
+			java -jar "$JARFILE" &
 			RESTPID=$!
 			sleep 15
 			# check if the program is still running. If not that means it crashed...
 			ALIVE=$(ps -ax | grep $! | grep java)
 			# if alive not empty, it is still running
 			if [ -z "$ALIVE" ]; then
-			    echo " * $2: NOT RUNNABLE" >> $BASEDIR/$REPORT
+			    echo " * [$2: NOT RUNNABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
 			else
 				## Program is running, let's test the individual endpoints (depending on what it is)
 				APP=$(echo $1 | cut -c -1)
@@ -147,7 +152,7 @@ function analyzeCode
 				    testBookStore
 				fi
 				computeSuccessRatio
-				echo " * $2: RUNNABLE, Tests passed: $RATIO" >> $BASEDIR/$REPORT
+				echo " * [$2: RUNNABLE, Tests passed: $RATIO]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
 				cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 			fi
 
