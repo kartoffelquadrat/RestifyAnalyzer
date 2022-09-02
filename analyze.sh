@@ -165,7 +165,7 @@ function analyzeCode
                 if [ ! "$COMPILABLE" == 0 ]; then
                         # Not compilable. Flag and proceed
 			echo " * [$2: NOT COMPILABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
-			echo -n "NC,0," >> $BASEDIR/$CSVREPORT
+			echo -n "NC,0" >> $BASEDIR/$CSVREPORT
                 else
 			# Compilable, lets try to actually run and test it
 			JARFILE=$(find . | grep jar | grep -v javadoc | grep -v sources | grep -v original | grep -v xml)
@@ -179,7 +179,7 @@ function analyzeCode
 			# if alive not empty, it is still running
 			if [ -z "$ALIVE" ]; then
 			    echo " * [$2: NOT RUNNABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
-			    echo -n "NR,0," >> $BASEDIR/$CSVREPORT
+			    echo -n "NR,0" >> $BASEDIR/$CSVREPORT
 			else
 				## Program is running, let's test the individual endpoints (depending on what it is)
 				APP=$(echo $1 | cut -c -1)
