@@ -60,10 +60,10 @@ function testEndpoint
    echo "$METHOD $RESOURCE $RESULT" >> $BASEDIR/$REPORT-tmp
 
    # append string for CSV report into temporary file
-   if [[ "$RESULT" == *"$FAILURE"* ]]; then
-       echo ",FAIL" >> $BASEDIR/$REPORT-indiv
-   elif
-       echo ",PASS" >> $BASEDIR/$REPORT-indiv
+   if [[ "$RESULT" == *"FAILURE"* ]]; then
+       echo -n ",FAIL" >> $BASEDIR/$CSVREPORT-indiv
+   else
+       echo -n ",PASS" >> $BASEDIR/$CSVREPORT-indiv
    fi
 }
 
@@ -179,8 +179,12 @@ function analyzeCode
 				cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 			fi
 
+			# rename CSV file with individual tests according to tested app
+                        mv $BASEDIR/$CSVREPORT-indiv $BASEDIR/$REPORT-$1
+
 			# kill running program, pass on
 			pkill -9 java
+                      
 		fi
                  
 		cd -
