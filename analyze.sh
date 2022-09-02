@@ -7,6 +7,7 @@ set -x
 UPLOADDIR=/Users/schieder/Desktop/uploads
 BASEDIR=$(pwd)
 REPORT=report.md
+CSVREPORT=stats.csv
 XOXTESTDIR=/Users/schieder/Code/XoxStudyRestTest
 BSTESTDIR=/Users/schieder/Code/BookStoreRestTest
 
@@ -54,13 +55,27 @@ function testEndpoint
    RESULT=$(mvn -Dtest=$1 test | grep ', Time' | cut -d ":" -f 6)
    extractMethod $1
    extractResource $1 $2
+
+   # append line for markdown report into temporary file
    echo "$METHOD $RESOURCE $RESULT" >> $BASEDIR/$REPORT-tmp
+
+   # append string for CSV report into temporary file
+   if [[ "$RESULT" == *"$FAILURE"* ]]; then
+       echo ",FAIL" >> $BASEDIR/$REPORT-indiv
+   elif
+       echo ",PASS" >> $BASEDIR/$REPORT-indiv
+   fi
 }
 
 ## Individual method testing for all Xox endpoints
 ## In case of failure there are two lines with "Time" but only one of them has a leading comma
 function testXox
 {
+	# reset test reports
+	rm $BASEDIR/$REPORT-indiv
+	rm $BASEDIR/$REPORT-tmp
+
+        # test all xox endpoints
 	cd $XOXTESTDIR
         echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
         testEndpoint XoxTest#testXoxGet xox
@@ -80,6 +95,11 @@ function testXox
 ## In case of failure there are two lines with "Time" but only one of them has a leading comma
 function testBookStore
 {
+	# reset test reports
+	rm $BASEDIR/$REPORT-indiv
+	rm $BASEDIR/$REPORT-tmp
+
+        # test all bookstore endpoints
 	cd $BSTESTDIR
         echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
         testEndpoint AssortmentTest#testIsbnsGet bookstore
@@ -130,6 +150,7 @@ function analyzeCode
                 if [ ! "$COMPILABLE" == 0 ]; then
                         # Not compilable. Flag and proceed
 			echo " * [$2: NOT COMPILABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
+			echo -n "NC,0," >> $BASEDIR/$CSVREPORT
                 else
 			# Compilable, lets try to actually run and test it
 			JARFILE=$(find . | grep jar | grep -v javadoc | grep -v sources | grep -v original | grep -v xml)
@@ -143,6 +164,7 @@ function analyzeCode
 			# if alive not empty, it is still running
 			if [ -z "$ALIVE" ]; then
 			    echo " * [$2: NOT RUNNABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
+			    echo -n "NR,0," >> $BASEDIR/$CSVREPORT
 			else
 				## Program is running, let's test the individual endpoints (depending on what it is)
 				APP=$(echo $1 | cut -c -1)
@@ -153,6 +175,7 @@ function analyzeCode
 				fi
 				computeSuccessRatio
 				echo " * [$2: RUNNABLE, Tests passed: $RATIO]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
+			        echo -n "OK,${RATIO// /}" >> $BASEDIR/$CSVREPORT
 				cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
 			fi
 
@@ -163,6 +186,12 @@ function analyzeCode
 		cd -
 	fi
 }
+
+function prepareCsv
+{
+    echo "codename,manualstatus,manualsuccessrate,assistedstatus,assistedsuccessrate,GET/xox/xox,POST/xox/xox,GET/xox/xox/id,DEL/xox/xox/id,GET/xox/xox/id/board,GET/xox/xox/id/players,GET/xox/xox/id/players/id/actions,POST/xox/xox/id/players/id/actions,GET/bookstore/isbns,GET/bookstore/isbns/isbn,PUT/bookstore/isbns/isbn,GET/bookstore/stocklocations,GET/bookstore/stocklocations/stocklocation,GET/bookstore/stocklocations/stocklocation/isbns,POST/bookstore/stocklocations/stocklocation/isbns,GET/bookstore/isbns/isbn/comments,POST/bookstore/isbns/isbn/comments,DEL/bookstore/isbns/isbn/comments,POST/bookstore/isbns/isbn/comments/comment,DEL/bookstore/isbns/isbn/comments/comment" > $CSVREPORT
+}
+
 function analyzeBothCodes
 {
 
@@ -198,9 +227,13 @@ function analyzeBothCodes
 	echo  "   * Testing $ASSISTED "
         analyzeCode $ASSISTED Assisted
 
+	echo -n ',' >> $BASEDIR/$CSVREPORT
+
 	cd $UPLOADDIR
 	echo  "   * Testing $MANUAL "
         analyzeCode $MANUAL Manual
+
+	echo '' >> $BASEDIR/$CSVREPORT
 }
 
 function analyzeUpload
@@ -212,6 +245,10 @@ function analyzeUpload
     echo "## $CODENAME" >> $REPORT
     echo "" >> $REPORT
 
+    ## write codename into CSV target file
+   echo -n $CODENAME >> $BASEDIR/$CSVREPORT
+   echo -n ',' >> $BASEDIR/$CSVREPORT
+
     ## Analyze the manual submission
     analyzeBothCodes
 }
@@ -219,17 +256,17 @@ function analyzeUpload
 ## Main logic
 ## Make sure target report file exists and is empty
 ORIGIN=$pwd
-if [ -f $REPORT ]; then
-   rm $REPORT
-fi
-touch $REPORT
-echo "# RESTify Study - Unit Test Report" >> $REPORT
+echo "# RESTify Study - Unit Test Report" > $REPORT
+
+prepareCsv
 
 ## Generate hotlinks
 cd $UPLOADDIR
-for i in [A-Z]*; do generateHotlink $i; done
+#for i in [A-Z]*; do generateHotlink $i; done
+generateHotlink Blue-Fox-File-Upload
 
 ## Run the actual analysis
-for i in [A-Z]*; do analyzeUpload $i; done
+#for i in [A-Z]*; do analyzeUpload $i; done
+analyzeUpload Blue-Fox-File-Upload
 
 cd $ORIGIN
