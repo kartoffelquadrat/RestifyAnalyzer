@@ -72,7 +72,7 @@ function testEndpoint
 function testXox
 {
 	# reset test reports
-	rm $BASEDIR/$REPORT-indiv
+	rm $BASEDIR/$CSVREPORT-indiv
 	rm $BASEDIR/$REPORT-tmp
 
         # test all xox endpoints
@@ -128,6 +128,21 @@ function computeSuccessRatio
 
 function analyzeCode
 {
+	# Determine which app was actually tested
+	# Set default outcome for test report to nothing passed:
+	if [[ "$1" == *"Xox"* ]]; then
+	  APP="xox"
+	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" $BASEDIR/$APP-$CSVREPORT
+	elif [[ "$1" == *"BookStore"* ]]; then
+	  APP="bookstore"
+	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" $BASEDIR/$APP-$CSVREPORT
+	else
+	  echo "Unknown app: $1"
+          exit -1
+        fi
+
+       
+
 	# Verify upload exists
 	if [ ! -d $CODENAME-File-Upload/$1 ]; then
 		echo "Upload not found, skipping"	
@@ -177,10 +192,10 @@ function analyzeCode
 				echo " * [$2: RUNNABLE, Tests passed: $RATIO]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
 			        echo -n "OK,${RATIO// /}" >> $BASEDIR/$CSVREPORT
 				cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
-			fi
 
-			# rename CSV file with individual tests according to tested app
-                        mv $BASEDIR/$CSVREPORT-indiv $BASEDIR/$REPORT-$1
+				# rename CSV file with individual tests according to tested app
+				mv $BASEDIR/$CSVREPORT-indiv $BASEDIR/$APP-$CSVREPORT
+			fi
 
 			# kill running program, pass on
 			pkill -9 java
@@ -193,7 +208,7 @@ function analyzeCode
 
 function prepareCsv
 {
-    echo "codename,manualstatus,manualsuccessrate,assistedstatus,assistedsuccessrate,GET/xox/xox,POST/xox/xox,GET/xox/xox/id,DEL/xox/xox/id,GET/xox/xox/id/board,GET/xox/xox/id/players,GET/xox/xox/id/players/id/actions,POST/xox/xox/id/players/id/actions,GET/bookstore/isbns,GET/bookstore/isbns/isbn,PUT/bookstore/isbns/isbn,GET/bookstore/stocklocations,GET/bookstore/stocklocations/stocklocation,GET/bookstore/stocklocations/stocklocation/isbns,POST/bookstore/stocklocations/stocklocation/isbns,GET/bookstore/isbns/isbn/comments,POST/bookstore/isbns/isbn/comments,DEL/bookstore/isbns/isbn/comments,POST/bookstore/isbns/isbn/comments/comment,DEL/bookstore/isbns/isbn/comments/comment" > $CSVREPORT
+    echo "codename,assistedstatus,assistedsuccessrate,manualstatus,manualsuccessrate,GET/xox/xox,POST/xox/xox,GET/xox/xox/id,DEL/xox/xox/id,GET/xox/xox/id/board,GET/xox/xox/id/players,GET/xox/xox/id/players/id/actions,POST/xox/xox/id/players/id/actions,GET/bookstore/isbns,GET/bookstore/isbns/isbn,PUT/bookstore/isbns/isbn,GET/bookstore/stocklocations,GET/bookstore/stocklocations/stocklocation,GET/bookstore/stocklocations/stocklocation/isbns,POST/bookstore/stocklocations/stocklocation/isbns,GET/bookstore/isbns/isbn/comments,POST/bookstore/isbns/isbn/comments,DEL/bookstore/isbns/isbn/comments,POST/bookstore/isbns/isbn/comments/comment,DEL/bookstore/isbns/isbn/comments/comment" > $CSVREPORT
 }
 
 function analyzeBothCodes
@@ -227,16 +242,22 @@ function analyzeBothCodes
 
 	esac
 
+        # Test the assisted restified app
 	cd $UPLOADDIR
 	echo  "   * Testing $ASSISTED "
         analyzeCode $ASSISTED Assisted
-
 	echo -n ',' >> $BASEDIR/$CSVREPORT
 
+	# Test the manually restified app
 	cd $UPLOADDIR
 	echo  "   * Testing $MANUAL "
         analyzeCode $MANUAL Manual
 
+        # Add individual test reports to CSV
+	cat $BASEDIR/X-$CSVREPORT >> $BASEDIR/$CSVREPORT
+	cat $BASEDIR/B-$CSVREPORT >> $BASEDIR/$CSVREPORT
+
+	# Append newline, prepare for next submission test
 	echo '' >> $BASEDIR/$CSVREPORT
 }
 
@@ -266,11 +287,11 @@ prepareCsv
 
 ## Generate hotlinks
 cd $UPLOADDIR
-#for i in [A-Z]*; do generateHotlink $i; done
-generateHotlink Blue-Fox-File-Upload
+for i in [A-Z]*; do generateHotlink $i; done
+#generateHotlink Blue-Fox-File-Upload
 
 ## Run the actual analysis
-#for i in [A-Z]*; do analyzeUpload $i; done
-analyzeUpload Blue-Fox-File-Upload
+for i in [A-Z]*; do analyzeUpload $i; done
+#analyzeUpload Blue-Fox-File-Upload
 
 cd $ORIGIN
