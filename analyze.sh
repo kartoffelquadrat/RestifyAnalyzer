@@ -131,11 +131,11 @@ function analyzeCode
 	# Set default outcome for test report to nothing passed:
 	if [[ "$1" == *"Xox"* ]]; then
 	  APP="xox"
-	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/X-$CSVREPORT
+	  echo -n ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/X-$CSVREPORT
 	  echo "Stored default fail vector in $BASEDIR/$APP-$CSVREPORT"
 	elif [[ "$1" == *"BookStore"* ]]; then
 	  APP="bookstore"
-	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/B-$CSVREPORT
+	  echo -n ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/B-$CSVREPORT
 	  echo "Stored default fail vector in $BASEDIR/$APP-$CSVREPORT"
 	else
 	  echo "Unknown app: $1"
@@ -299,11 +299,11 @@ for i in [A-Z]*; do generateHotlink $i; done
 for i in [A-Z]*; do analyzeUpload $i; done
 #analyzeUpload Blue-Squid-File-Upload
 
-cd $ORIGIN
-
 # Clear temp files
 rm X-*
 rm B-*
+
+cd $ORIGIN
 
 # Print success message
 echo "Done! The CSV with detailed tests results is: $CSVREPORT"
