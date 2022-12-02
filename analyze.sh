@@ -3,11 +3,11 @@
 ## Maximilian Schiedermeier, 2022
 #! /bin/bash
 
-set -x
+#set -x
 UPLOADDIR=/Users/schieder/Desktop/uploads
 BASEDIR=$(pwd)
 REPORT=report.md
-CSVREPORT=stats.csv
+CSVREPORT=tests.csv
 XOXTESTDIR=/Users/schieder/Code/XoxStudyRestTest
 BSTESTDIR=/Users/schieder/Code/BookStoreRestTest
 
@@ -86,7 +86,6 @@ function testXox
 	testEndpoint XoxTest#testXoxIdPlayersGet xox
 	testEndpoint XoxTest#testXoxIdPlayersIdActionsGet xox
 	testEndpoint XoxTest#testXoxIdPlayersIdActionsPost xox
-## TODO: Figure out why action post is missing
         echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
 	cd -
 }
@@ -132,15 +131,16 @@ function analyzeCode
 	# Set default outcome for test report to nothing passed:
 	if [[ "$1" == *"Xox"* ]]; then
 	  APP="xox"
-	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" $BASEDIR/$APP-$CSVREPORT
+	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/X-$CSVREPORT
+	  echo "Stored default fail vector in $BASEDIR/$APP-$CSVREPORT"
 	elif [[ "$1" == *"BookStore"* ]]; then
 	  APP="bookstore"
-	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" $BASEDIR/$APP-$CSVREPORT
+	  echo ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/B-$CSVREPORT
+	  echo "Stored default fail vector in $BASEDIR/$APP-$CSVREPORT"
 	else
 	  echo "Unknown app: $1"
           exit -1
         fi
-
        
 
 	# Verify upload exists
@@ -279,6 +279,11 @@ function analyzeUpload
 }
 
 ## Main logic
+## Clear files of previous iterations
+rm *txt
+rm *csv
+rm report*
+
 ## Make sure target report file exists and is empty
 ORIGIN=$pwd
 echo "# RESTify Study - Unit Test Report" > $REPORT
@@ -288,10 +293,17 @@ prepareCsv
 ## Generate hotlinks
 cd $UPLOADDIR
 for i in [A-Z]*; do generateHotlink $i; done
-#generateHotlink Blue-Fox-File-Upload
+#generateHotlink Blue-Squid-File-Upload
 
 ## Run the actual analysis
 for i in [A-Z]*; do analyzeUpload $i; done
-#analyzeUpload Blue-Fox-File-Upload
+#analyzeUpload Blue-Squid-File-Upload
 
 cd $ORIGIN
+
+# Clear temp files
+rm X-*
+rm B-*
+
+# Print success message
+echo "Done! The CSV with detailed tests results is: $CSVREPORT"
