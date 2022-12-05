@@ -1,7 +1,7 @@
+#! /bin/bash
 ## RESTify upload analyzer
 ## Produces unit test reports for all participants, ready for export
 ## Maximilian Schiedermeier, 2022
-#! /bin/bash
 
 #set -x
 UPLOADDIR=/Users/schieder/Desktop/uploads
@@ -13,23 +13,23 @@ BSTESTDIR=/Users/schieder/Code/BookStoreRestTest
 
 function getCodeName
 {
-    GROUP=$(echo $1 | cut -d '-' -f1)
-    ANIMAL=$(echo $1 | cut -d '-' -f2)
+    GROUP=$(echo "$1" | cut -d '-' -f1)
+    ANIMAL=$(echo "$1" | cut -d '-' -f2)
     CODENAME=$GROUP-$ANIMAL
 }
 
 ## Generates a markdown anchor to the corresponding participant entry
 function generateHotlink
 {
-    getCodeName $1
-    LC_CODENAME=$(echo $CODENAME | tr '[:upper:]' '[:lower:]')
-    echo " * [$CODENAME](#$LC_CODENAME)" >> $BASEDIR/$REPORT
+    getCodeName "$1"
+    LC_CODENAME=$(echo "$CODENAME" | tr '[:upper:]' '[:lower:]')
+    echo " * [$CODENAME](#$LC_CODENAME)" >> "$BASEDIR/$REPORT"
 }
 
 ## Analyzes the last three characters of a provided string and inferes the corresponding CRUD http method.
 function extractMethod
 {
-   METHOD=$(echo $1 | rev | cut -c -3 | rev)
+   METHOD=$(echo "$1" | rev | cut -c -3 | rev)
    if [ "$METHOD" = "ost" ] ;then
      METHOD="Post"
    fi
@@ -37,33 +37,33 @@ function extractMethod
      METHOD="Del"
    fi
    METHOD='['$METHOD']'
-   METHOD=$( printf '%-6s' $METHOD)
+   METHOD=$( printf '%-6s' "$METHOD")
 }
 
 function extractResource
 {
-    RESOURCE=$(echo $1 | sed s/Get// | sed s/Put// | sed s/Post// | sed s/Delete//)
-    RESOURCE=$(echo $RESOURCE | cut -d "#" -f 2)
-    RESOURCE=$(echo $RESOURCE | sed s/test// | sed -r -e "s/([^A-Z])([A-Z])/\1\/\2/g")
-    RESOURCE=$(echo $RESOURCE | tr '[:upper:]' '[:lower:]')
-    RESOURCE=/$2/$RESOURCE
-    RESOURCE=$( printf '%-48s' $RESOURCE)
+    RESOURCE=$(echo "$1" | sed s/Get// | sed s/Put// | sed s/Post// | sed s/Delete//)
+    RESOURCE=$(echo "$RESOURCE" | cut -d "#" -f 2)
+    RESOURCE=$(echo "$RESOURCE" | sed s/test// | sed -r -e "s/([^A-Z])([A-Z])/\1\/\2/g")
+    RESOURCE=$(echo "$RESOURCE" | tr '[:upper:]' '[:lower:]')
+    RESOURCE="/$2/$RESOURCE"
+    RESOURCE=$( printf '%-48s' "$RESOURCE")
 }
 
 function testEndpoint
 {
-   RESULT=$(mvn -Dtest=$1 test | grep ', Time' | cut -d ":" -f 6)
-   extractMethod $1
-   extractResource $1 $2
+   RESULT=$(mvn -Dtest="$1" test | grep ', Time' | cut -d ":" -f 6)
+   extractMethod "$1"
+   extractResource "$1" "$2"
 
    # append line for markdown report into temporary file
-   echo "$METHOD $RESOURCE $RESULT" >> $BASEDIR/$REPORT-tmp
+   echo "$METHOD $RESOURCE $RESULT" >> "$BASEDIR/$REPORT-tmp"
 
    # append string for CSV report into temporary file
    if [[ "$RESULT" == *"FAILURE"* ]]; then
-       echo -n ",FAIL" >> $BASEDIR/$CSVREPORT-indiv
+       echo -n ",FAIL" >> "$BASEDIR/$CSVREPORT-indiv"
    else
-       echo -n ",PASS" >> $BASEDIR/$CSVREPORT-indiv
+       echo -n ",PASS" >> "$BASEDIR/$CSVREPORT-indiv"
    fi
 }
 
@@ -72,13 +72,13 @@ function testEndpoint
 function testXox
 {
 	# reset test reports
-	rm $BASEDIR/$CSVREPORT-indiv
-	rm $BASEDIR/$REPORT-tmp
+	rm "$BASEDIR/$CSVREPORT-indiv"
+	rm "$BASEDIR/$REPORT-tmp"
 
         # test all xox endpoints
-	cd $XOXTESTDIR
-        echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
-        testEndpoint XoxTest#testXoxGet xox
+	cd $XOXTESTDIR || exit
+  echo "\`\`\`"  > "$BASEDIR/$REPORT-tmp"
+  testEndpoint XoxTest#testXoxGet xox
 	testEndpoint XoxTest#testXoxPost xox
 	testEndpoint XoxTest#testXoxIdGet xox
 	testEndpoint XoxTest#testXoxIdDelete xox
@@ -86,8 +86,8 @@ function testXox
 	testEndpoint XoxTest#testXoxIdPlayersGet xox
 	testEndpoint XoxTest#testXoxIdPlayersIdActionsGet xox
 	testEndpoint XoxTest#testXoxIdPlayersIdActionsPost xox
-        echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
-	cd -
+  echo "\`\`\`"  >> "$BASEDIR/$REPORT-tmp"
+	cd - || exit
 }
 
 ## Individual method testing for all BookStore endpoints
@@ -95,12 +95,12 @@ function testXox
 function testBookStore
 {
 	# reset test reports
-	rm $BASEDIR/$REPORT-indiv
-	rm $BASEDIR/$REPORT-tmp
+	rm "$BASEDIR/$REPORT-indiv"
+	rm "$BASEDIR/$REPORT-tmp"
 
         # test all bookstore endpoints
-	cd $BSTESTDIR
-        echo "\`\`\`"  > $BASEDIR/$REPORT-tmp
+	cd $BSTESTDIR || exit
+        echo "\`\`\`"  > "$BASEDIR/$REPORT-tmp"
         testEndpoint AssortmentTest#testIsbnsGet bookstore
 	testEndpoint AssortmentTest#testIsbnsIsbnGet bookstore
 	testEndpoint AssortmentTest#testIsbnsIsbnPut bookstore
@@ -113,16 +113,17 @@ function testBookStore
 	testEndpoint CommentsTest#testIsbnsIsbnCommentsDelete bookstore
 	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentPost bookstore
 	testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentDelete bookstore
-        echo "\`\`\`"  >> $BASEDIR/$REPORT-tmp
-	cd -
+        echo "\`\`\`"  >> "$BASEDIR/$REPORT-tmp"
+	cd - || exit
 }
 
 ## Inspects the most recent report tmp file and computes the success ratio
 function computeSuccessRatio
 {
-	TOTAL=$(cat $BASEDIR/$REPORT-tmp | grep -v \` | wc -l)
-	SUCCESS=$(cat $BASEDIR/$REPORT-tmp | grep -v \` | grep -v FAILURE | wc -l)
-	RATIO=$SUCCESS/$TOTAL
+  # TODO: get rid of CAT
+	TOTAL=$(cat "$BASEDIR/$REPORT-tmp" | grep -v \` | wc -l)
+	SUCCESS=$(cat "$BASEDIR/$REPORT-tmp" | grep -v \` | grep -v FAILURE | wc -l)
+	RATIO="$SUCCESS/$TOTAL"
 }
 
 function analyzeCode
@@ -131,31 +132,31 @@ function analyzeCode
 	# Set default outcome for test report to nothing passed:
 	if [[ "$1" == *"Xox"* ]]; then
 	  APP="xox"
-	  echo -n ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/X-$CSVREPORT
+	  echo -n ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > "$BASEDIR/X-$CSVREPORT"
 	  echo "Stored default fail vector in $BASEDIR/$APP-$CSVREPORT"
 	elif [[ "$1" == *"BookStore"* ]]; then
 	  APP="bookstore"
-	  echo -n ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > $BASEDIR/B-$CSVREPORT
+	  echo -n ",FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL,FAIL" > "$BASEDIR/B-$CSVREPORT"
 	  echo "Stored default fail vector in $BASEDIR/$APP-$CSVREPORT"
 	else
 	  echo "Unknown app: $1"
-          exit -1
+          exit 255
         fi
        
 
 	# Verify upload exists
-	if [ ! -d $CODENAME-File-Upload/$1 ]; then
+	if [ ! -d "$CODENAME-File-Upload/$1" ]; then
 		echo "Upload not found, skipping"	
-		echo " * Manual: MISSING" >> $BASEDIR/$REPORT
+		echo " * Manual: MISSING" >> "$BASEDIR/$REPORT"
 		
 	else
 
 	        # Make sure no other programs are blocking the port
 	        pkill -9 java
-		cd $CODENAME-File-Upload/$1
+		cd "$CODENAME-File-Upload/$1" || exit
 
 		# Store all detected spring mappings in a dedicated file
-		grep -nre @ src -A 2| grep Mapping -A 2 > $BASEDIR/$CODENAME-$2.txt
+		grep -nre @ src -A 2| grep Mapping -A 2 > "$BASEDIR/$CODENAME-$2.txt"
 
 		## Try to compile, skip all tests (some users did not delete them)
                 mvn -q clean package -Dmaven.test.skip=true > /tmp/output 2>&1
@@ -164,37 +165,37 @@ function analyzeCode
 		## if it did not compile, mark as uncompilable and proceed to next
                 if [ ! "$COMPILABLE" == 0 ]; then
                         # Not compilable. Flag and proceed
-			echo " * [$2: NOT COMPILABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
-			echo -n "NC,0" >> $BASEDIR/$CSVREPORT
+			echo " * [$2: NOT COMPILABLE]($BASEDIR/$CODENAME-$2.txt)" >> "$BASEDIR/$REPORT"
+			echo -n "NC,0" >> "$BASEDIR/$CSVREPORT"
                 else
 			# Compilable, lets try to actually run and test it
 			JARFILE=$(find . | grep jar | grep -v javadoc | grep -v sources | grep -v original | grep -v xml)
-			echo $JARFILE
+			echo "$JARFILE"
 			#java -jar "$JARFILE" > /tmp/output 2>&1 &
 			java -jar "$JARFILE" &
-			RESTPID=$!
+#			RESTPID=$!
 			sleep 15
 			# check if the program is still running. If not that means it crashed...
 			ALIVE=$(ps -ax | grep $! | grep java)
 			# if alive not empty, it is still running
 			if [ -z "$ALIVE" ]; then
-			    echo " * [$2: NOT RUNNABLE]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
-			    echo -n "NR,0" >> $BASEDIR/$CSVREPORT
+			    echo " * [$2: NOT RUNNABLE]($BASEDIR/$CODENAME-$2.txt)" >> "$BASEDIR/$REPORT"
+			    echo -n "NR,0" >> "$BASEDIR/$CSVREPORT"
 			else
 				## Program is running, let's test the individual endpoints (depending on what it is)
-				APP=$(echo $1 | cut -c -1)
+				APP=$(echo "$1" | cut -c -1)
 				if [ "$APP" = "X" ]; then
 				    testXox
 				else
 				    testBookStore
 				fi
 				computeSuccessRatio
-				echo " * [$2: RUNNABLE, Tests passed: $RATIO]($BASEDIR/$CODENAME-$2.txt)" >> $BASEDIR/$REPORT
-			        echo -n "OK,${RATIO// /}" >> $BASEDIR/$CSVREPORT
-				cat $BASEDIR/$REPORT-tmp >> $BASEDIR/$REPORT
+				echo " * [$2: RUNNABLE, Tests passed: $RATIO]($BASEDIR/$CODENAME-$2.txt)" >> "$BASEDIR/$REPORT"
+			        echo -n "OK,${RATIO// /}" >> "$BASEDIR/$CSVREPORT"
+				cat "$BASEDIR/$REPORT-tmp" >> "$BASEDIR/$REPORT"
 
 				# rename CSV file with individual tests according to tested app
-				mv $BASEDIR/$CSVREPORT-indiv $BASEDIR/$APP-$CSVREPORT
+				mv "$BASEDIR/$CSVREPORT-indiv" "$BASEDIR/$APP-$CSVREPORT"
 			fi
 
 			# kill running program, pass on
@@ -202,7 +203,7 @@ function analyzeCode
                       
 		fi
                  
-		cd -
+		cd - || exit
 	fi
 }
 
@@ -243,36 +244,36 @@ function analyzeBothCodes
 	esac
 
         # Test the assisted restified app
-	cd $UPLOADDIR
+	cd $UPLOADDIR || exit
 	echo  "   * Testing $ASSISTED "
         analyzeCode $ASSISTED Assisted
-	echo -n ',' >> $BASEDIR/$CSVREPORT
+	echo -n ',' >> "$BASEDIR/$CSVREPORT"
 
 	# Test the manually restified app
-	cd $UPLOADDIR
+	cd $UPLOADDIR || exit
 	echo  "   * Testing $MANUAL "
         analyzeCode $MANUAL Manual
 
         # Add individual test reports to CSV
-	cat $BASEDIR/X-$CSVREPORT >> $BASEDIR/$CSVREPORT
-	cat $BASEDIR/B-$CSVREPORT >> $BASEDIR/$CSVREPORT
+	cat "$BASEDIR/X-$CSVREPORT" >> "$BASEDIR/$CSVREPORT"
+	cat "$BASEDIR/B-$CSVREPORT" >> "$BASEDIR/$CSVREPORT"
 
 	# Append newline, prepare for next submission test
-	echo '' >> $BASEDIR/$CSVREPORT
+	echo '' >> "$BASEDIR/$CSVREPORT"
 }
 
 function analyzeUpload
 {
-    getCodeName $1
+    getCodeName "$1"
     echo " > Analyzing $CODENAME"
-    cd $BASEDIR
+    cd "$BASEDIR" || exit
     echo "" >> $REPORT
-    echo "## $CODENAME" >> $REPORT
-    echo "" >> $REPORT
+    echo "## $CODENAME" >> "$REPORT"
+    echo "" >> "$REPORT"
 
     ## write codename into CSV target file
-   echo -n $CODENAME >> $BASEDIR/$CSVREPORT
-   echo -n ',' >> $BASEDIR/$CSVREPORT
+   echo -n "$CODENAME" >> "$BASEDIR/$CSVREPORT"
+   echo -n ',' >> "$BASEDIR/$CSVREPORT"
 
     ## Analyze the manual submission
     analyzeBothCodes
@@ -285,25 +286,25 @@ rm *csv
 rm report*
 
 ## Make sure target report file exists and is empty
-ORIGIN=$pwd
+ORIGIN=$(pwd)
 echo "# RESTify Study - Unit Test Report" > $REPORT
 
 prepareCsv
 
 ## Generate hotlinks
-cd $UPLOADDIR
-for i in [A-Z]*; do generateHotlink $i; done
+cd $UPLOADDIR || exit
+for i in [A-Z]*; do generateHotlink "$i"; done
 #generateHotlink Blue-Squid-File-Upload
 
 ## Run the actual analysis
-for i in [A-Z]*; do analyzeUpload $i; done
+for i in [A-Z]*; do analyzeUpload "$i"; done
 #analyzeUpload Blue-Squid-File-Upload
 
 # Clear temp files
 rm X-*
 rm B-*
 
-cd $ORIGIN
+cd "$ORIGIN" || exit
 
 # Print success message
 echo "Done! The CSV with detailed tests results is: $CSVREPORT"
