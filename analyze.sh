@@ -176,7 +176,7 @@ function analyzeCode
 #			RESTPID=$!
 			sleep 15
 			# check if the program is still running. If not that means it crashed...
-			ALIVE=$(ps -ax | grep $! | grep java)
+			ALIVE=$(pgrep java)
 			# if alive not empty, it is still running
 			if [ -z "$ALIVE" ]; then
 			    echo " * [$2: NOT RUNNABLE]($BASEDIR/$CODENAME-$2.txt)" >> "$BASEDIR/$REPORT"
@@ -281,8 +281,8 @@ function analyzeUpload
 
 ## Main logic
 ## Clear files of previous iterations
-rm *txt
-rm *csv
+rm ./*txt
+rm ./*csv
 rm report*
 
 ## Make sure target report file exists and is empty
