@@ -121,8 +121,8 @@ function testBookStore
 function computeSuccessRatio
 {
   # TODO: get rid of CAT
-	TOTAL=$(cat "$BASEDIR/$REPORT-tmp" | grep -v \` | wc -l)
-	SUCCESS=$(cat "$BASEDIR/$REPORT-tmp" | grep -v \` | grep -v FAILURE | wc -l)
+	TOTAL=$(grep -v \` "$BASEDIR/$REPORT-tmp" -c)
+	SUCCESS=$(grep -v \` "$BASEDIR/$REPORT-tmp" | grep -v FAILURE -c)
 	RATIO="$SUCCESS/$TOTAL"
 }
 
@@ -175,7 +175,7 @@ function analyzeCode
 			java -jar "$JARFILE" &
 #			RESTPID=$!
 			sleep 15
-			# check if the program is still running. If not that means it crashed...
+			# check if the program is still running (still a running java process). If not that means it crashed...
 			ALIVE=$(pgrep java)
 			# if alive not empty, it is still running
 			if [ -z "$ALIVE" ]; then
@@ -254,9 +254,11 @@ function analyzeBothCodes
 	echo  "   * Testing $MANUAL "
         analyzeCode $MANUAL Manual
 
-        # Add individual test reports to CSV
-	cat "$BASEDIR/X-$CSVREPORT" >> "$BASEDIR/$CSVREPORT"
-	cat "$BASEDIR/B-$CSVREPORT" >> "$BASEDIR/$CSVREPORT"
+  # Add individual test reports to CSV
+	{
+	  cat "$BASEDIR/X-$CSVREPORT"
+	  cat "$BASEDIR/B-$CSVREPORT"
+	}  >> "$BASEDIR/$CSVREPORT"
 
 	# Append newline, prepare for next submission test
 	echo '' >> "$BASEDIR/$CSVREPORT"
