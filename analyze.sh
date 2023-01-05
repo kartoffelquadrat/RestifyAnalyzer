@@ -4,11 +4,32 @@
 ## Maximilian Schiedermeier, 2022
 
 #set -x
+## Set singe mode to name of a specific participant, to reduce test scope to single partiticpant
+## rather than iterating over all submission. This variable is useful for testing, since full test
+## runs are time consuming.
+SINGLEMODE=Blue-Fox
+
+## Location of the folder with all studiy submissions. The content of this folder should be an extra
+## folder per study participant, each containing the two submissions.
 UPLOADDIR=/Users/schieder/Desktop/uploads
+
+## Variable used to ensure the command line returns where it was called from after script exectuion
 BASEDIR=$(pwd)
+
+## Target name for the markdown report to create. The report contains success statistics and links
+## to extracted code fragments for every analyzed submission.
 REPORT=report.md
+
+## Target name for the machine readable test report. This file is intended for interpretation by the
+## RestifyJupyter visualization project: https://github.com/m5c/RestifyJupyter
 CSVREPORT=tests.csv
+
+## Reference to the cloned sources of the Xox REST unit tests.
+## Origin: https://github.com/m5c/XoxStudyRestTest
 XOXTESTDIR=/Users/schieder/Code/XoxStudyRestTest
+
+## Reference to the cloned sources of the BookStore REST unit tests.
+## Origin: https://github.com/m5c/BookStoreRestTest
 BSTESTDIR=/Users/schieder/Code/BookStoreRestTest
 
 function getCodeName {
