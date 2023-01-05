@@ -33,13 +33,20 @@ Service restarts are time-consuming, but the safest way to ensure a clean servic
 
 ## Usage
 
- * Get hold of the original study source code submissions. (Source code of the two RESTful services produced by every RESTify study participant).  
-Note: For compliance reasons these source code submissions cannot be published. [Contact the authors](#authors) if you need to reproduce the unit tests results.
- * Call: ```analyze.sh```, wait for script to finish
-   * Submissions must be in ```~/Desktop/uploads/{Colour}-{Animal}-File-Upload/[BookStoreModel|XoxModel|BookStoreInternals|XoxInternals]
- * Inspect test reports
-   * CSV file: [stats.csv] (consumed as source csv file by [RestifyJupyter](https://github.com/m5c/RestifyJupyter) project. Place output file at ```RestifyJupyter/source-csv-files/tests.csv```)
-   * Markdown report: [report.md](report.md) (includes hotlinks to relevat code snippets per submission.)
+ * Get hold of the original study source code submissions: ```submission.zip```  
+(Source code of the two RESTful services produced by every RESTify study participant).  
+ > Note: For participant anonymity compliance reasons the participant source code submissions cannot be published here. [Contact the authors](#authors) if you need to reproduce the unit tests results.
+ * Unzip the ```submissions.zip```, make sure the ```UPLOADDIR``` variable correctly references the submissions source codes.
+ * Clone the sources the two REST application test scenarios.  
+Update the corresponding ```XOXTESTDIR``` and ```BSTESTDIR``` variables to match the location.
+    * [BookStore REST Tests](https://github.com/m5c/BookStoreRestTest) on GitHub
+    * [Xox REST Tests](https://github.com/m5c/XoxStudyRestTest) on GitHub
+ * Call: ```analyze.sh```, wait for script to finish. (May take several hours)
+ * Inspect the test reports
+   * CSV file for further scripted visualizations: [stats.csv]  
+This file is consumed as input data by the [RestifyJupyter](https://github.com/m5c/RestifyJupyter) project.
+   * Human-readable markdown report: [report.md](report.md)
+ This file also contains hotlinks to relevant code snippets, in case a subsequent manual inspection is required.
 
 ## Development
 
