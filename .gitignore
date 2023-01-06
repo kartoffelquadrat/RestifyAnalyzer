@@ -2,6 +2,11 @@ report.md
 report.md-tmp
 *.txt
 
+tests.csv
+tests.csv-indiv
+B-tests.csv
+X-tests.csv
+
 # Created by https://www.toptal.com/developers/gitignore/api/macos,vim
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,vim
 

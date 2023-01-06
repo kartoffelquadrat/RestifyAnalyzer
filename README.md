@@ -42,6 +42,8 @@ Update the corresponding ```XOXTESTDIR``` and ```BSTESTDIR``` variables to match
     * [BookStore REST Tests](https://github.com/m5c/BookStoreRestTest) on GitHub
     * [Xox REST Tests](https://github.com/m5c/XoxStudyRestTest) on GitHub
  * Call: ```analyze.sh```, wait for script to finish. (May take several hours)
+   * You can also provide the name of a participant as first runtime argument to delimit testing scope to a single submission.  
+   Example: ```analyze.sh Blue-Fox```
  * Inspect the test reports
    * CSV file for further scripted visualizations: [stats.csv]  
 This file is consumed as input data by the [RestifyJupyter](https://github.com/m5c/RestifyJupyter) project.
