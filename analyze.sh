@@ -15,6 +15,12 @@ SINGLEMODE=Blue-Fox
 ## folder per study participant, each containing the two submissions.
 UPLOADDIR=/Users/schieder/Desktop/uploads
 
+## Grace period in seconds the programm will stall after every backend power up. Backend needs some
+# seconds before it can be tested. The number must be high enough to ensure the backend is fully
+# running. Higher number slows down the total time to run the test suite. Value can be set lower
+# on systems with a faster CPU.
+STARTUPGRACE=6
+
 ## Variable used to ensure the command line returns where it was called from after script exectuion
 BASEDIR=$(pwd)
 
@@ -92,18 +98,28 @@ function testEndpoint {
   fi
 }
 
+## Kills the process running on port 8080, if there is one.
+function killApp8080 {
+
+  # Get ID of process running on 8080, if there is one
+  PID=$(lsof -ti:8080)
+
+  # If there is a service running, kill it
+  if [[ -n "$PID" ]]; then
+    kill "$PID"
+  fi
+}
+
 function restartBackend {
   #  echo -n "Dummy function for now. The Jarfile to restart is known. It is: "; echo $JARFILE
   #  echo -n "Current location: "; pwd
 
   # Make sure no other programs are blocking the port / kill any instance of running java backends.
-  # TODO: turn this into a targeted kill for port 8080, so we do not mess with other services running on the system.
-  pkill -9 java
+  killApp8080
   # Power up the backend
   java -jar "$JARFILE" &
   # Wait a grace period for the backend to be ready for testing
-  # TODO: Declare a variable for this.
-  sleep 15
+  sleep $STARTUPGRACE
 
 }
 
