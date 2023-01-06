@@ -6,11 +6,6 @@
 ## Enable the next line for debug mode, if you are interested in the values for every function call
 #set -x
 
-## Set singe mode to name of a specific participant, to reduce test scope to single partiticpant
-## rather than iterating over all submission. This variable is useful for testing, since full test
-## runs are time consuming.
-SINGLEMODE=Blue-Fox
-
 ## Location of the folder with all studiy submissions. The content of this folder should be an extra
 ## folder per study participant, each containing the two submissions.
 UPLOADDIR=/Users/schieder/Desktop/uploads
@@ -196,8 +191,9 @@ function computeSuccessRatio {
   RATIO="$SUCCESS/$TOTAL"
 }
 
-## Inspects a single application submission. The procedure is: 1) Reset result vector 2) Power up backend application to test 3) Run all unit tests 4) Append test results to report.
-# TODO: Modify so this there either is a way to restart the backend, or the power up is relocated in the first place to xox.bs staged test method.
+## Inspects a single application submission. The procedure is: 1) Reset result vector 2) Power up
+# backend application to test 3) Run all unit tests, with intermediate backend restarts
+# 4) Append test results to report.
 function analyzeCode {
   # Determine which app was actually tested
   # Set default outcome for test report to nothing passed:
@@ -241,7 +237,7 @@ function analyzeCode {
       JARFILE=$(find . | grep jar | grep -v javadoc | grep -v sources | grep -v original | grep -v xml)
       # Convert idnetified jarfile to absolute path, so the backend cna be restarted even if we
       # change location.
-      JARFILE=$(realpath $JARFILE)
+      JARFILE=$(realpath "$JARFILE")
       echo "$JARFILE"
 
       # First time power up of backend
@@ -258,7 +254,6 @@ function analyzeCode {
 
         ## Program is running, let's test the individual endpoints (depending on what it is)
         APP=$(echo "$1" | cut -c -1)
-        # TODO: If alive pass location of the jarfile to actual testers, so they can restart it after every individual test.
         if [ "$APP" = "X" ]; then
           testXox
         else
@@ -355,9 +350,14 @@ function analyzeUpload {
 
 ## Main logic
 ## Clear files of previous iterations
-rm ./*txt
-rm ./*csv
-rm report*
+rm -f ./*txt
+rm -f ./*csv
+rm -f report*
+
+## If first runtime argument is provided, this is interpreted as request to run in single user mode.
+# That is to say instead of iterating over all users, the progrem analyses the matchign submission.
+# Participant name must be spelled exaclty as correpsonding participant name, e.g. "Blue-Fox"
+SINGLEMODE="$1"
 
 ## Make sure target report file exists and is empty
 ORIGIN=$(pwd)
@@ -367,16 +367,33 @@ prepareCsv
 
 ## Generate hotlinks
 cd $UPLOADDIR || exit
-for i in [A-Z]*; do generateHotlink "$i"; done
 
-## Run the actual analysis
-for i in [A-Z]*; do analyzeUpload "$i"; done
+## If running in single-run / debug mode: Only test target user. Otherwise test all submissions.
+if [[ -n "$SINGLEMODE" ]]; then
+  # Verify the provided username exists
+  if [[ ! -d "$SINGLEMODE-File-Upload" ]]; then
+    echo "Cannot run single mode. No such submission: $SINGLEMODE-File-Upload"
+    exit 255;
+  fi
+
+  echo "Single Mode detected. Only testing submission for $SINGLEMODE"
+  ## Generate report for target user
+  generateHotlink $SINGLEMODE
+  ## Test target user only
+  analyzeUpload $SINGLEMODE
+else
+  echo "Analyzing all submissions: "
+  ## Generate report template for all users
+  for i in [A-Z]*; do generateHotlink "$i"; done
+  ## Run the actual analysis
+  for i in [A-Z]*; do analyzeUpload "$i"; done
+fi
 
 # Clear temp files
+cd "$ORIGIN" || exit
 rm X-*
 rm B-*
 
-cd "$ORIGIN" || exit
 
 # Print success message
 echo "Done! The CSV with detailed tests results is: $CSVREPORT"
