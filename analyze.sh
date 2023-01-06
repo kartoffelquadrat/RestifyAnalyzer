@@ -393,7 +393,7 @@ fi
 cd "$ORIGIN" || exit
 rm X-*
 rm B-*
-
+rm tests.csv-indiv
 
 # Print success message
 echo "Done! The CSV with detailed tests results is: $CSVREPORT"
