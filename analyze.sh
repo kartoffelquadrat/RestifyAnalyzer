@@ -1,9 +1,11 @@
 #! /bin/bash
 ## RESTify upload analyzer
 ## Produces unit test reports for all participants, ready for export
-## Maximilian Schiedermeier, 2022
+## Maximilian Schiedermeier, 2023
 
+## Enable the next line for debug mode, if you are interested in the values for every function call
 #set -x
+
 ## Set singe mode to name of a specific participant, to reduce test scope to single partiticpant
 ## rather than iterating over all submission. This variable is useful for testing, since full test
 ## runs are time consuming.
@@ -38,7 +40,8 @@ function getCodeName {
   CODENAME=$GROUP-$ANIMAL
 }
 
-## Generates a markdown anchor to the corresponding participant entry
+## Generates a markdown anchor in the markdown report that links from the document top participant
+# name to the section with test result details for the given participant.
 function generateHotlink {
   getCodeName "$1"
   LC_CODENAME=$(echo "$CODENAME" | tr '[:upper:]' '[:lower:]')
@@ -58,6 +61,8 @@ function extractMethod {
   METHOD=$(printf '%-6s' "$METHOD")
 }
 
+## Helper functino to reduce a provided endpoint string to the effective REST resource location.
+# Result is stored in a new RESROUCE variable.
 function extractResource {
   RESOURCE=$(echo "$1" | sed s/Get// | sed s/Put// | sed s/Post// | sed s/Delete//)
   RESOURCE=$(echo "$RESOURCE" | cut -d "#" -f 2)
@@ -67,6 +72,10 @@ function extractResource {
   RESOURCE=$(printf '%-48s' "$RESOURCE")
 }
 
+## Tests one specific endpoint by calling the corresponding unit tests. The unit test may or may
+# not verify write operations by subsequent read operations, depending on how the application
+# tester is configured / launch parameter provided.
+# The test result is afterwards appended to the markdown and CSV report.
 function testEndpoint {
   RESULT=$(mvn -Dtest="$1" test | grep ', Time' | cut -d ":" -f 6)
   extractMethod "$1"
@@ -83,27 +92,51 @@ function testEndpoint {
   fi
 }
 
-## Individual method testing for all Xox endpoints
-## In case of failure there are two lines with "Time" but only one of them has a leading comma
+function restartBackend {
+  #  echo -n "Dummy function for now. The Jarfile to restart is known. It is: "; echo $JARFILE
+  #  echo -n "Current location: "; pwd
+
+  # Make sure no other programs are blocking the port / kill any instance of running java backends.
+  # TODO: turn this into a targeted kill for port 8080, so we do not mess with other services running on the system.
+  pkill -9 java
+  # Power up the backend
+  java -jar "$JARFILE" &
+  # Wait a grace period for the backend to be ready for testing
+  # TODO: Declare a variable for this.
+  sleep 15
+
+}
+
+## Staged sequential test for all REST endpoints of the Xox applicaion.
+# Calling this method is different from a direct run of the test repository, because standard java
+# unit tests do not enforce a test order.
 function testXox {
 
   # test all xox endpoints
   cd $XOXTESTDIR || exit
   echo "\`\`\`" >"$BASEDIR/$REPORT-tmp"
   testEndpoint XoxTest#testXoxGet xox
+  restartBackend
   testEndpoint XoxTest#testXoxPost xox
+  restartBackend
   testEndpoint XoxTest#testXoxIdGet xox
+  restartBackend
   testEndpoint XoxTest#testXoxIdDelete xox
+  restartBackend
   testEndpoint XoxTest#testXoxIdBoardGet xox
+  restartBackend
   testEndpoint XoxTest#testXoxIdPlayersGet xox
+  restartBackend
   testEndpoint XoxTest#testXoxIdPlayersIdActionsGet xox
+  restartBackend
   testEndpoint XoxTest#testXoxIdPlayersIdActionsPost xox
   echo "\`\`\`" >>"$BASEDIR/$REPORT-tmp"
   cd - || exit
 }
 
-## Individual method testing for all BookStore endpoints
-## In case of failure there are two lines with "Time" but only one of them has a leading comma
+## Staged sequential test for all REST endpoints of the BookStore applicaion.
+# Calling this method is different from a direct run of the test repository, because standard java
+# unit tests do not enforce a test order.
 function testBookStore {
   # reset test reports
   rm "$BASEDIR/$REPORT-indiv"
@@ -113,29 +146,42 @@ function testBookStore {
   cd $BSTESTDIR || exit
   echo "\`\`\`" >"$BASEDIR/$REPORT-tmp"
   testEndpoint AssortmentTest#testIsbnsGet bookstore
+  restartBackend
   testEndpoint AssortmentTest#testIsbnsIsbnGet bookstore
+  restartBackend
   testEndpoint AssortmentTest#testIsbnsIsbnPut bookstore
+  restartBackend
   testEndpoint StockLocationsTest#testStocklocationsGet bookstore
+  restartBackend
   testEndpoint StockLocationsTest#testStocklocationsStocklocationGet bookstore
+  restartBackend
   testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsGet bookstore
+  restartBackend
   testEndpoint StockLocationsTest#testStocklocationsStocklocationIsbnsPost bookstore
+  restartBackend
   testEndpoint CommentsTest#testIsbnsIsbnCommentsGet bookstore
+  restartBackend
   testEndpoint CommentsTest#testIsbnsIsbnCommentsPost bookstore
+  restartBackend
   testEndpoint CommentsTest#testIsbnsIsbnCommentsDelete bookstore
+  restartBackend
   testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentPost bookstore
+  restartBackend
   testEndpoint CommentsTest#testIsbnsIsbnCommentsCommentDelete bookstore
   echo "\`\`\`" >>"$BASEDIR/$REPORT-tmp"
   cd - || exit
 }
 
-## Inspects the most recent report tmp file and computes the success ratio
+## Inspects the most recent report swap file and computes the success ratio as a number. Result is
+# stored in a new variable "RATIO"
 function computeSuccessRatio {
-  # TODO: get rid of CAT
   TOTAL=$(grep -v \` "$BASEDIR/$REPORT-tmp" -c)
   SUCCESS=$(grep -v \` "$BASEDIR/$REPORT-tmp" | grep -v FAILURE -c)
   RATIO="$SUCCESS/$TOTAL"
 }
 
+## Inspects a single application submission. The procedure is: 1) Reset result vector 2) Power up backend application to test 3) Run all unit tests 4) Append test results to report.
+# TODO: Modify so this there either is a way to restart the backend, or the power up is relocated in the first place to xox.bs staged test method.
 function analyzeCode {
   # Determine which app was actually tested
   # Set default outcome for test report to nothing passed:
@@ -159,8 +205,7 @@ function analyzeCode {
 
   else
 
-    # Make sure no other programs are blocking the port
-    pkill -9 java
+    # Access the upload location
     cd "$CODENAME-File-Upload/$1" || exit
 
     # Store all detected spring mappings in a dedicated file
@@ -178,11 +223,13 @@ function analyzeCode {
     else
       # Compilable, lets try to actually run and test it
       JARFILE=$(find . | grep jar | grep -v javadoc | grep -v sources | grep -v original | grep -v xml)
+      # Convert idnetified jarfile to absolute path, so the backend cna be restarted even if we
+      # change location.
+      JARFILE=$(realpath $JARFILE)
       echo "$JARFILE"
 
-      java -jar "$JARFILE" &
-      #			RESTPID=$!
-      sleep 15
+      # First time power up of backend
+      restartBackend
 
       # check if the program is still running (still a running java process). If not that means it crashed...
       ALIVE=$(pgrep java)
@@ -195,6 +242,7 @@ function analyzeCode {
 
         ## Program is running, let's test the individual endpoints (depending on what it is)
         APP=$(echo "$1" | cut -c -1)
+        # TODO: If alive pass location of the jarfile to actual testers, so they can restart it after every individual test.
         if [ "$APP" = "X" ]; then
           testXox
         else
