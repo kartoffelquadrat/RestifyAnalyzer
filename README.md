@@ -41,9 +41,13 @@ Service restarts are time-consuming, but the safest way to ensure a clean servic
 Update the corresponding ```XOXTESTDIR``` and ```BSTESTDIR``` variables to match the location.
     * [BookStore REST Tests](https://github.com/m5c/BookStoreRestTest) on GitHub
     * [Xox REST Tests](https://github.com/m5c/XoxStudyRestTest) on GitHub
- * Call: ```analyze.sh```, wait for script to finish. (May take several hours)
-   * You can also provide the name of a participant as first runtime argument to delimit testing scope to a single submission.  
-   Example: ```analyze.sh Blue-Fox```
+ * Call: ```./analyze.sh```, wait for script to finish. (May take several hours)  
+ * Command line options:
+   * ```-h```: Print help message with further usage information
+   * ```-d```: Run in debug mode (print all intermediate results)
+   * ```v```: Enable read verfication for write operations.  only considered as successful, if the state change if the initial write operation is reflected in the read result. By default this option is disabled.
+ This option is by default disabled.
+   *  ```-u Colour-Animal```:  Reduce test scope to a single study submission. Name of the target participant code name must be provided, e.g. Pink-Snail
  * Inspect the test reports
    * CSV file for further scripted visualizations: [stats.csv]  
 This file is consumed as input data by the [RestifyJupyter](https://github.com/m5c/RestifyJupyter) project.
