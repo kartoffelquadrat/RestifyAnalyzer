@@ -10,6 +10,7 @@
 ## folder per study participant, each containing the two submissions.
 UPLOADDIR=/Users/schieder/Desktop/uploads
 
+
 ## Grace period in seconds the programm will stall after every backend power up. Backend needs some
 # seconds before it can be tested. The number must be high enough to ensure the backend is fully
 # running. Higher number slows down the total time to run the test suite. Value can be set lower
@@ -78,7 +79,7 @@ function extractResource {
 # tester is configured / launch parameter provided.
 # The test result is afterwards appended to the markdown and CSV report.
 function testEndpoint {
-  RESULT=$(mvn -Dtest="$1" test | grep ', Time' | cut -d ":" -f 6)
+  RESULT=$(mvn -Dtest="$1" test "$VERIF" | grep ', Time' | cut -d ":" -f 6)
   extractMethod "$1"
   extractResource "$1" "$2"
 
@@ -348,16 +349,50 @@ function analyzeUpload {
   analyzeBothCodes
 }
 
+# Function to print help message
+function usage {
+  echo "RESTify Analyzer Script"
+  echo "This software performs an automatic reliable run of unit tests for RESTified versions of the BookStore and Xox software samples."
+  echo "Usage: ./analyze [-hdvu::][Colour-Animal]"
+  echo "-h => print this help message"
+  echo "-d => enable debug mode where all intermediate results are printed"
+  echo "-v => enable verfication of write operations with subsequent read probes. A test is only considered as successful, if the state change if the initial write operation is reflected in the read result. By default this option is disabled."
+  echo "-u Colour-Animal => Reduce test scope to a single study submission. Name of the target participant code name must be provided, e.g. Pink-Snail"
+  echo "https://github.com/m5c/RestifyAnalyzer"
+  echo "(c) M.Schiedermeier, McGill University 2023"
+}
+
 ## Main logic
+## Parse command line options
+while getopts "dhvu::" ARG; do
+  case $ARG in
+      d) # Enable debug mode
+        echo "Debug mode enabled"
+        set -x
+        ;;
+      v) # Specify v value.
+        echo "Read Verfication Enabled!"
+        VERIF="Dreadverif=true"
+        ;;
+      u) # Specify strength, either 45 or 90.
+        ## If argument is provided, this is interpreted as request to run in single user mode.
+        # That is to say instead of iterating over all users, the progrem analyses the matchign submission.
+        # Participant name must be spelled exactly as correpsonding participant name, e.g. "Blue-Fox"
+        SINLGEMODE="${OPTARG}"
+        echo "Single user mode enabled."
+        ;;
+      h) # Display help.
+        usage
+        exit 0
+        ;;
+    esac
+done
+
+
 ## Clear files of previous iterations
 rm -f ./*txt
 rm -f ./*csv
 rm -f report*
-
-## If first runtime argument is provided, this is interpreted as request to run in single user mode.
-# That is to say instead of iterating over all users, the progrem analyses the matchign submission.
-# Participant name must be spelled exaclty as correpsonding participant name, e.g. "Blue-Fox"
-SINGLEMODE="$1"
 
 ## Make sure target report file exists and is empty
 ORIGIN=$(pwd)
@@ -397,3 +432,6 @@ rm tests.csv-indiv
 
 # Print success message
 echo "Done! The CSV with detailed tests results is: $CSVREPORT"
+
+# Reset debug option, just in case
+set +x
