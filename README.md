@@ -42,7 +42,7 @@ Update the corresponding ```XOXTESTDIR``` and ```BSTESTDIR``` variables to match
     * [BookStore REST Tests](https://github.com/m5c/BookStoreRestTest) on GitHub
     * [Xox REST Tests](https://github.com/m5c/XoxStudyRestTest) on GitHub
  * Call: ```./analyze.sh```, wait for script to finish. (May take several hours)  
- * Command line options:
+Command line options:
    * ```-h```: Print help message with further usage information
    * ```-d```: Run in debug mode (print all intermediate results)
    * ```v```: Enable read verfication for write operations.  only considered as successful, if the state change if the initial write operation is reflected in the read result. By default this option is disabled.
