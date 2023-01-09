@@ -378,7 +378,7 @@ while getopts "dhvu::" ARG; do
         ## If argument is provided, this is interpreted as request to run in single user mode.
         # That is to say instead of iterating over all users, the progrem analyses the matchign submission.
         # Participant name must be spelled exactly as correpsonding participant name, e.g. "Blue-Fox"
-        SINLGEMODE="${OPTARG}"
+        SINGLEMODE="${OPTARG}"
         echo "Single user mode enabled."
         ;;
       h) # Display help.
@@ -426,12 +426,30 @@ fi
 
 # Clear temp files
 cd "$ORIGIN" || exit
-rm X-*
-rm B-*
-rm tests.csv-indiv
+rm -f X-*
+rm -f B-*
+rm -f tests.csv-indiv
 
-# Print success message
-echo "Done! The CSV with detailed tests results is: $CSVREPORT"
+## Create target folder for this test run, to preven overwriting by subsequent run
+DATESTRING=$(gdate "+%Y-%m-%d--%Hh%Mm%Ss")
+if [ -n "$VERIF" ]; then
+  VERIFSTRING="no-state-checks"
+else
+  VERIFSTRING="with-state-checks"
+fi
+if [ -z "$SINGLEMODE" ]; then
+  SINGLEMODE="all-submissions"
+fi
+RESULT_DIR=testreport--$DATESTRING--$VERIFSTRING--$SINGLEMODE
+mkdir $RESULT_DIR
+mv report.md $RESULT_DIR
+mv tests.csv $RESULT_DIR
+mv Red-* "$RESULT_DIR"
+mv Green-* "$RESULT_DIR"
+mv Blue-* "$RESULT_DIR"
+mv Yellow-* "$RESULT_DIR"
+rm -f report.md-tmp
+echo "Done! All results stored in $RESULT_DIR"
 
 # Reset debug option, just in case
 set +x
