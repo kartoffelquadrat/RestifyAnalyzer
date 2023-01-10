@@ -3,9 +3,6 @@
 ## Produces unit test reports for all participants, ready for export
 ## Maximilian Schiedermeier, 2023
 
-## Enable the next line for debug mode, if you are interested in the values for every function call
-#set -x
-
 ## Location of the folder with all studiy submissions. The content of this folder should be an extra
 ## folder per study participant, each containing the two submissions.
 UPLOADDIR=/Users/schieder/Desktop/uploads
