@@ -49,9 +49,9 @@ Command line options:
  This option is by default disabled.
    *  ```-u Colour-Animal```:  Reduce test scope to a single study submission. Name of the target participant code name must be provided, e.g. Pink-Snail
  * Inspect the test reports
-   * CSV file for further scripted visualizations: [stats.csv]  
+   * CSV file for further scripted visualizations: *report-folder*/tests.csv  
 This file is consumed as input data by the [RestifyJupyter](https://github.com/m5c/RestifyJupyter) project.
-   * Human-readable markdown report: [report.md](report.md)
+   * Human-readable markdown report: *report-folder*/report.md
  This file also contains hotlinks to relevant code snippets, in case a subsequent manual inspection is required.
 
 ## Development
