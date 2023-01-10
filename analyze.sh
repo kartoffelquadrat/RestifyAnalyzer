@@ -7,7 +7,6 @@
 ## folder per study participant, each containing the two submissions.
 UPLOADDIR=/Users/schieder/Desktop/uploads
 
-
 ## Grace period in seconds the programm will stall after every backend power up. Backend needs some
 # seconds before it can be tested. The number must be high enough to ensure the backend is fully
 # running. Higher number slows down the total time to run the test suite. Value can be set lower
@@ -363,28 +362,27 @@ function usage {
 ## Parse command line options
 while getopts "dhvu::" ARG; do
   case $ARG in
-      d) # Enable debug mode
-        echo "Debug mode enabled"
-        set -x
-        ;;
-      v) # Specify v value.
-        echo "Read Verfication Enabled!"
-        VERIF="Dreadverif=true"
-        ;;
-      u) # Specify strength, either 45 or 90.
-        ## If argument is provided, this is interpreted as request to run in single user mode.
-        # That is to say instead of iterating over all users, the progrem analyses the matchign submission.
-        # Participant name must be spelled exactly as correpsonding participant name, e.g. "Blue-Fox"
-        SINGLEMODE="${OPTARG}"
-        echo "Single user mode enabled."
-        ;;
-      h | *) # Display help.
-        usage
-        exit 0
-        ;;
-    esac
+  d) # Enable debug mode
+    echo "Debug mode enabled"
+    set -x
+    ;;
+  v) # Specify v value.
+    echo "Read Verfication Enabled!"
+    VERIF="Dreadverif=true"
+    ;;
+  u) # Specify strength, either 45 or 90.
+    ## If argument is provided, this is interpreted as request to run in single user mode.
+    # That is to say instead of iterating over all users, the progrem analyses the matchign submission.
+    # Participant name must be spelled exactly as correpsonding participant name, e.g. "Blue-Fox"
+    SINGLEMODE="${OPTARG}"
+    echo "Single user mode enabled."
+    ;;
+  h | *) # Display help.
+    usage
+    exit 0
+    ;;
+  esac
 done
-
 
 ## Clear files of previous iterations
 rm -f ./*txt
@@ -405,7 +403,7 @@ if [[ -n "$SINGLEMODE" ]]; then
   # Verify the provided username exists
   if [[ ! -d "$SINGLEMODE-File-Upload" ]]; then
     echo "Cannot run single mode. No such submission: $SINGLEMODE-File-Upload"
-    exit 255;
+    exit 255
   fi
 
   echo "Single Mode detected. Only testing submission for $SINGLEMODE"
