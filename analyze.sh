@@ -381,7 +381,7 @@ while getopts "dhvu::" ARG; do
         SINGLEMODE="${OPTARG}"
         echo "Single user mode enabled."
         ;;
-      h) # Display help.
+      h | *) # Display help.
         usage
         exit 0
         ;;
@@ -413,9 +413,9 @@ if [[ -n "$SINGLEMODE" ]]; then
 
   echo "Single Mode detected. Only testing submission for $SINGLEMODE"
   ## Generate report for target user
-  generateHotlink $SINGLEMODE
+  generateHotlink "$SINGLEMODE"
   ## Test target user only
-  analyzeUpload $SINGLEMODE
+  analyzeUpload "$SINGLEMODE"
 else
   echo "Analyzing all submissions: "
   ## Generate report template for all users
@@ -441,9 +441,9 @@ if [ -z "$SINGLEMODE" ]; then
   SINGLEMODE="all-submissions"
 fi
 RESULT_DIR=testreport--$DATESTRING--$VERIFSTRING--$SINGLEMODE
-mkdir $RESULT_DIR
-mv report.md $RESULT_DIR
-mv tests.csv $RESULT_DIR
+mkdir "$RESULT_DIR"
+mv report.md "$RESULT_DIR"
+mv tests.csv "$RESULT_DIR"
 mv Red-* "$RESULT_DIR"
 mv Green-* "$RESULT_DIR"
 mv Blue-* "$RESULT_DIR"
