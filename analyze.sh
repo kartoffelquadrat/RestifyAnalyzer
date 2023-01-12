@@ -357,6 +357,17 @@ function usage {
 }
 
 ## Main logic
+## Reject any input that uses an argument 1 not starting with "-"
+if [ -n "$1" ]; then
+  FIRSTCHAR=$(echo $1 | cut -c 1-1)
+  if [ "$FIRSTCHAR" = "-" ]; then
+    # Cannot figure out a reliable way to negate char comparison. TODO: reduce to else
+    echo -n ""
+  else
+    echo "Error: First argument must be a switch starting with \"-\""
+    exit 255
+  fi
+fi
 ## Parse command line options
 while getopts "dhvu::" ARG; do
   case $ARG in
