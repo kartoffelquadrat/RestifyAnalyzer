@@ -103,8 +103,6 @@ function killApp8080 {
 }
 
 function restartBackend {
-  #  echo -n "Dummy function for now. The Jarfile to restart is known. It is: "; echo $JARFILE
-  #  echo -n "Current location: "; pwd
 
   # Make sure no other programs are blocking the port / kill any instance of running java backends.
   killApp8080
