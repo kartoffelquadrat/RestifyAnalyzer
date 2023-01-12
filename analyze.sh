@@ -75,7 +75,13 @@ function extractResource {
 # tester is configured / launch parameter provided.
 # The test result is afterwards appended to the markdown and CSV report.
 function testEndpoint {
-  RESULT=$(mvn -Dtest="$1" test "$VERIF" | grep ', Time' | cut -d ":" -f 6)
+  # TODO: figure out how this line can be empty ... the $VERIF flag is printed as '', confuses maven
+  if [ -z "$VERIF" ]; then
+    RESULT=$(mvn -Dtest="$1" test | grep ', Time' | cut -d ":" -f 6)
+  else
+    RESULT=$(mvn -Dtest="$1" test "$VERIF" | grep ', Time' | cut -d ":" -f 6)
+  fi
+
   extractMethod "$1"
   extractResource "$1" "$2"
 
@@ -369,6 +375,7 @@ if [ -n "$1" ]; then
   fi
 fi
 ## Parse command line options
+VERIF=""
 while getopts "dhvu::" ARG; do
   case $ARG in
   d) # Enable debug mode
