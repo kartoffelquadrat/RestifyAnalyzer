@@ -384,7 +384,7 @@ while getopts "dhvu::" ARG; do
     ;;
   v) # Specify v value.
     echo "Read Verfication Enabled!"
-    VERIF="Dreadverif=true"
+    VERIF="-Dreadverif=true"
     ;;
   u) # Specify strength, either 45 or 90.
     ## If argument is provided, this is interpreted as request to run in single user mode.
@@ -443,7 +443,7 @@ rm -f tests.csv-indiv
 
 ## Create target folder for this test run, to preven overwriting by subsequent run
 DATESTRING=$(gdate "+%Y-%m-%d--%Hh%Mm%Ss")
-if [ -n "$VERIF" ]; then
+if [ -z "$VERIF" ]; then
   VERIFSTRING="no-state-checks"
 else
   VERIFSTRING="with-state-checks"
