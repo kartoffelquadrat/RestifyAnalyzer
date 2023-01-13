@@ -32,6 +32,9 @@ XOXTESTDIR=/Users/schieder/Code/XoxStudyRestTest
 ## Origin: https://github.com/m5c/BookStoreRestTest
 BSTESTDIR=/Users/schieder/Code/BookStoreRestTest
 
+## Indicate how many lines of code to contain in the produced textual report after every detected spring annotation
+ANNOTATION_LINE_BUFFER=4
+
 function getCodeName {
   GROUP=$(echo "$1" | cut -d '-' -f1)
   ANIMAL=$(echo "$1" | cut -d '-' -f2)
@@ -222,7 +225,7 @@ function analyzeCode {
     cd "$CODENAME-File-Upload/$1" || exit
 
     # Store all detected spring mappings in a dedicated file
-    grep -nre @ src -A 2 | grep Mapping -A 2 >"$BASEDIR/$CODENAME-$2.txt"
+    grep -nre @ src -A $ANNOTATION_LINE_BUFFER | grep Mapping -A $ANNOTATION_LINE_BUFFER >"$BASEDIR/$CODENAME-$2.txt"
 
     ## Try to compile, skip all tests (some users did not delete them)
     mvn -q clean package -Dmaven.test.skip=true >/tmp/output 2>&1
