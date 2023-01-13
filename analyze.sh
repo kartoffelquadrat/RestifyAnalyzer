@@ -418,9 +418,6 @@ while getopts "dhvu::" ARG; do
   esac
 done
 
-## Create result dir and remember name in RESULTDIR variable
-createResultDir
-
 ## Clear files of previous iterations
 rm -f ./*txt
 rm -f ./*csv
@@ -429,7 +426,6 @@ rm -f report*
 ## Make sure target report file exists and is empty
 ORIGIN=$(pwd)
 echo "# RESTify Study - Unit Test Report" >$REPORT
-
 prepareCsv
 
 ## Generate hotlinks
@@ -462,6 +458,10 @@ rm -f X-*
 rm -f B-*
 rm -f tests.csv-indiv
 
+## Create result dir and remember name in RESULTDIR variable
+createResultDir
+
+# Save actual report files in target directory
 mv report.md "$RESULT_DIR"
 mv tests.csv "$RESULT_DIR"
 mv Red-* "$RESULT_DIR"
