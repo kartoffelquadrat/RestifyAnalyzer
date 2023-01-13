@@ -14,22 +14,15 @@ This software is a tool written specifically for analysis of the data acquired t
 
 ### Main Double Iterations
 
-* The script preforms a double loop over all participant folders. Both iterations run all tests, however they differ regarding write-operations (operations that alter state of the tested submission).
-  * The first iteration verifies the effects of every encountered write operations. A test is only labeled as successful if the write operation succeeds and the subsecquent read operation confirms its effectiveness.
-  * The second iteration only assesses write operations. A write operation is considered successful, if their execution does not return an error.
-* Tests are only assumed successful, if either of the following is true:
-  * Both iterations resulted in a positive test assessment. (*Write* and *Read* succeeded)
-  * The first iteration failed, the second succeeded and there is an error identified in the associated read operation. (*Write* succeeded, *Read* failed, but the error is in the implementation of the *Read* operation. The original *Write* operation is hence assumed successful.)
+* In default configueation, the script preforms a single loop over all participant folders. Every iteration runs all unit tests for each of the two submitted applications.
+  * If no additional parameters are provided, the script does not verify the effectiveness of write operations by means of a subsequent read operation. This is to reduce test cross dependencies between the individual REST API endpoints.
+  * Using the ```-v``` flag, the tests can ba hardened to only evaluate to positivie, if state changes of write requests can be confirmend by subsequent read requiests. See [Usage Section](#usage) 
 
  > Note: The scenario of a successful *Write*, and unsuccessful *Read* validation is very rare. It is recommended to investigate these cases manually, to exclude possibility of a false-positive *Write*.
 
 ### True State Reset
 
- * The tests verify state status and changes of the tested service.
- * Failing tests can blemish the outcome of subsequent tests.
- * We therefore perform a complete state reset of the tested service, after every interaction.
- * This is done by a complete service restart.  
-Service restarts are time-consuming, but the safest way to ensure a clean service state.
+Every test is executed in perfect isolation, that is to say every individual unit test run is preceeded by a comlete application restart. This eliminates any effects that stem from blemished test results due to corrupted initial service state (e.g. caused by failed earlier test).
 
 ## Usage
 
