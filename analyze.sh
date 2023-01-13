@@ -59,7 +59,7 @@ function extractMethod {
   METHOD=$(printf '%-6s' "$METHOD")
 }
 
-## Helper functino to reduce a provided endpoint string to the effective REST resource location.
+## Helper function to reduce a provided endpoint string to the effective REST resource location.
 # Result is stored in a new RESROUCE variable.
 function extractResource {
   RESOURCE=$(echo "$1" | sed s/Get// | sed s/Put// | sed s/Post// | sed s/Delete//)
@@ -75,7 +75,7 @@ function extractResource {
 # tester is configured / launch parameter provided.
 # The test result is afterwards appended to the markdown and CSV report.
 function testEndpoint {
-  # TODO: figure out how this line can be empty ... the $VERIF flag is printed as '', confuses maven
+  # TODO: investigate if there is prettier way to eliminate the $VERIF variable if it is empty.
   if [ -z "$VERIF" ]; then
     RESULT=$(mvn -Dtest="$1" test | grep ', Time' | cut -d ":" -f 6)
   else
@@ -231,7 +231,7 @@ function analyzeCode {
     ## if it did not compile, mark as uncompilable and proceed to next
     if [ ! "$COMPILABLE" == 0 ]; then
       # Not compilable. Flag and proceed
-      echo " * [$2: NOT COMPILABLE]($BASEDIR/$CODENAME-$2.txt)" >>"$BASEDIR/$REPORT"
+      echo " * [$2: NOT COMPILABLE]($CODENAME-$2.txt)" >>"$BASEDIR/$REPORT"
       echo -n "NC,0" >>"$BASEDIR/$CSVREPORT"
     else
       # Compilable, lets try to actually run and test it
@@ -249,7 +249,7 @@ function analyzeCode {
 
       # if alive not empty, it is still running
       if [ -z "$ALIVE" ]; then
-        echo " * [$2: NOT RUNNABLE]($BASEDIR/$CODENAME-$2.txt)" >>"$BASEDIR/$REPORT"
+        echo " * [$2: NOT RUNNABLE]($CODENAME-$2.txt)" >>"$BASEDIR/$REPORT"
         echo -n "NR,0" >>"$BASEDIR/$CSVREPORT"
       else
 
@@ -261,7 +261,7 @@ function analyzeCode {
           testBookStore
         fi
         computeSuccessRatio
-        echo " * [$2: RUNNABLE, Tests passed: $RATIO]($BASEDIR/$CODENAME-$2.txt)" >>"$BASEDIR/$REPORT"
+        echo " * [$2: RUNNABLE, Tests passed: $RATIO]($CODENAME-$2.txt)" >>"$BASEDIR/$REPORT"
         echo -n "OK,${RATIO// /}" >>"$BASEDIR/$CSVREPORT"
         cat "$BASEDIR/$REPORT-tmp" >>"$BASEDIR/$REPORT"
 
@@ -349,6 +349,21 @@ function analyzeUpload {
   analyzeBothCodes
 }
 
+function createResultDir {
+  ## Create target folder for this test run, to preven overwriting by subsequent run
+  DATESTRING=$(gdate "+%Y-%m-%d--%Hh%Mm%Ss")
+  if [ -z "$VERIF" ]; then
+    VERIFSTRING="no-state-checks"
+  else
+    VERIFSTRING="with-state-checks"
+  fi
+  if [ -z "$SINGLEMODE" ]; then
+    SINGLEMODE="all-submissions"
+  fi
+  RESULT_DIR=testreport--$DATESTRING--$VERIFSTRING--$SINGLEMODE
+  mkdir "$RESULT_DIR"
+}
+
 # Function to print help message
 function usage {
   echo "RESTify Analyzer Script"
@@ -400,6 +415,9 @@ while getopts "dhvu::" ARG; do
   esac
 done
 
+## Create result dir and remember name in RESULTDIR variable
+createResultDir
+
 ## Clear files of previous iterations
 rm -f ./*txt
 rm -f ./*csv
@@ -441,18 +459,6 @@ rm -f X-*
 rm -f B-*
 rm -f tests.csv-indiv
 
-## Create target folder for this test run, to preven overwriting by subsequent run
-DATESTRING=$(gdate "+%Y-%m-%d--%Hh%Mm%Ss")
-if [ -z "$VERIF" ]; then
-  VERIFSTRING="no-state-checks"
-else
-  VERIFSTRING="with-state-checks"
-fi
-if [ -z "$SINGLEMODE" ]; then
-  SINGLEMODE="all-submissions"
-fi
-RESULT_DIR=testreport--$DATESTRING--$VERIFSTRING--$SINGLEMODE
-mkdir "$RESULT_DIR"
 mv report.md "$RESULT_DIR"
 mv tests.csv "$RESULT_DIR"
 mv Red-* "$RESULT_DIR"
