@@ -5,7 +5,7 @@
 
 ## Location of the folder with all studiy submissions. The content of this folder should be an extra
 ## folder per study participant, each containing the two submissions.
-UPLOADDIR=/Users/schieder/Desktop/uploads
+UPLOADDIR=/Users/schieder/Desktop/03-uploads-sanitized-sources-models
 
 ## Grace period in seconds the programm will stall after every backend power up. Backend needs some
 # seconds before it can be tested. The number must be high enough to ensure the backend is fully
@@ -428,8 +428,9 @@ ORIGIN=$(pwd)
 echo "# RESTify Study - Unit Test Report" >$REPORT
 prepareCsv
 
-## Generate hotlinks
+## Remove the readme file, if it is still trailing
 cd $UPLOADDIR || exit
+rm -f README.md
 
 ## If running in single-run / debug mode: Only test target user. Otherwise test all submissions.
 if [[ -n "$SINGLEMODE" ]]; then
