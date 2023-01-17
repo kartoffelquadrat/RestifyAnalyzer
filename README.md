@@ -26,6 +26,21 @@ Every test is executed in perfect isolation, that is to say every individual uni
 
 ## Usage
 
+### Script Dependencies
+
+ * Install the ```realpath``` command: ```brew install coreutils```
+ * Create a ```Code``` directory in your homedir, clone these four repos:
+     * ```https://github.com/m5c/XoxStudyRestTest
+     * ```git clone https://github.com/m5c/BookStoreRestTest```
+     * ```git clone https://github.com/m5c/BookStoreInternals```
+     * ```git clone https://github.com/m5c/XoxInternals```
+ * Locally install the Internals packages:
+    * ```cd XoxInternals; mvn clean install; cd ..```
+    * ```cd BookStoreInternals; mvn clean install; cd ..```
+
+
+### Running the script
+
  * Get hold of the original study source code submissions: ```submission.zip```  
 (Source code of the two RESTful services produced by every RESTify study participant).  
  > Note: For participant anonymity compliance reasons the participant source code submissions cannot be published here. [Contact the authors](#authors) if you need to reproduce the unit tests results.
