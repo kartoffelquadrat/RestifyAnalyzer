@@ -367,6 +367,20 @@ function createResultDir {
   mkdir "$RESULT_DIR"
 }
 
+function clearTempFiles {
+  rm -f ./*txt
+  rm -f ./*csv
+  rm -f report*
+  rm -f report.md-tmp
+  rm -f X-*
+  rm -f B-*
+  rm -f tests.csv-indiv
+  rm -f Red-*
+  rm -f Green-*
+  rm -f Blue-*
+  rm -f Yellow-*
+}
+
 # Function to print help message
 function usage {
   echo "RESTify Analyzer Script"
@@ -419,9 +433,7 @@ while getopts "dhvu::" ARG; do
 done
 
 ## Clear files of previous iterations
-rm -f ./*txt
-rm -f ./*csv
-rm -f report*
+clearTempFiles
 
 ## Make sure target report file exists and is empty
 ORIGIN=$(pwd)
@@ -453,15 +465,9 @@ else
   for i in [A-Z]*; do analyzeUpload "$i"; done
 fi
 
-# Clear temp files
-cd "$ORIGIN" || exit
-rm -f X-*
-rm -f B-*
-rm -f tests.csv-indiv
-
 ## Create result dir and remember name in RESULTDIR variable
+cd "$ORIGIN" || exit
 createResultDir
-
 # Save actual report files in target directory
 mv report.md "$RESULT_DIR"
 mv tests.csv "$RESULT_DIR"
@@ -469,7 +475,9 @@ mv Red-* "$RESULT_DIR"
 mv Green-* "$RESULT_DIR"
 mv Blue-* "$RESULT_DIR"
 mv Yellow-* "$RESULT_DIR"
-rm -f report.md-tmp
+
+# Clear temp files
+clearTempFiles
 echo "Done! All results stored in $RESULT_DIR"
 
 # Reset debug option, just in case

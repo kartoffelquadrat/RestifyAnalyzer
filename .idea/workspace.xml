@@ -23,6 +23,9 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;RESTKit.sync.cert.Ide&quot;: &quot;true&quot;,
+    &quot;RESTKit.sync.env.Ide&quot;: &quot;true&quot;,
+    &quot;RESTKit.sync.requestConfig.Ide&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
@@ -55,7 +58,15 @@
       <workItem from="1673467131176" duration="377000" />
       <workItem from="1673540459404" duration="1808000" />
       <workItem from="1673545742461" duration="1302000" />
-      <workItem from="1673551736350" duration="8194000" />
+      <workItem from="1673551736350" duration="11298000" />
+      <workItem from="1673644525953" duration="479000" />
+      <workItem from="1673646277050" duration="519000" />
+      <workItem from="1673884450785" duration="54000" />
+      <workItem from="1673886784426" duration="465000" />
+      <workItem from="1673888888860" duration="793000" />
+      <workItem from="1673979226374" duration="2616000" />
+      <workItem from="1674033655638" duration="1905000" />
+      <workItem from="1674043624895" duration="1759000" />
     </task>
     <servers />
   </component>
