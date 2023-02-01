@@ -144,7 +144,7 @@ function testXox {
   restartBackend
   testEndpoint XoxTest#testXoxIdPlayersIdActionsGet xox
   restartBackend
-  testEndpoint XoxTest#testXoxIdPlayersIdActionsPost xox
+  testEndpoint XoxTest#testXoxIdPlayersIdActionsActionPost xox
   echo "\`\`\`" >>"$BASEDIR/$REPORT-tmp"
   cd - || exit
 }
