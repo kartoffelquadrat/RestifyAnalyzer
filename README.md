@@ -32,8 +32,8 @@ Every test is executed in perfect isolation, that is to say every individual uni
  * Create a ```Code``` directory in your homedir, clone these four repositories:
      * ```git clone https://github.com/m5c/XoxStudyRestTest```
      * ```git clone https://github.com/m5c/BookStoreRestTest```
-     * ```git clone https://github.com/m5c/BookStoreInternals```
-     * ```git clone https://github.com/m5c/XoxInternals```
+     * ```git clone https://github.com/m5c/BookStoreInternals --branch RestifyStudy --single-branch```
+     * ```git clone https://github.com/m5c/XoxInternals --branch RestifyStudy --single-branch```
  * Locally install the Internals packages:
     * ```cd XoxInternals; mvn clean install; cd ..```
     * ```cd BookStoreInternals; mvn clean install; cd ..```
