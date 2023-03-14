@@ -16,7 +16,7 @@ This software is a tool written specifically for analysis of the data acquired t
 
  * In default configueation, the script preforms a single loop over all participant folders. Every iteration runs all unit tests for each of the two submitted applications.
  * If no additional parameters are provided, the script does not verify the effectiveness of write operations by means of a subsequent read operation. This is to reduce test cross dependencies between the individual REST API endpoints.
- * Using the ```-v``` flag, the tests can be hardened to only evaluate to positivie, if state changes of write requests can be confirmend by subsequent read requests. See [Usage Section](#usage) 
+ * Using the ```-v``` flag, the tests can be hardened to only evaluate to positive, if state changes of write requests can be confirmend by subsequent read requests. See [Usage Section](#usage) 
 
  > Note: The scenario of a successful *Write*, and unsuccessful *Read* validation is very rare. It is recommended to investigate these cases manually, to exclude possibility of a false-positive *Write*.
 
