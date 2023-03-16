@@ -45,8 +45,10 @@ Every test is executed in perfect isolation, that is to say every individual uni
 Note, there are several versions of the bundle: ```submission.zip```
      * ```00-uploads-untampered-sources-models-videos.zip```: Not published, contains code and screencasts that allow identification of participants.
      * ```01-uploads-untampered-sources-models.zip```: Not published, contains code and metadata that allow identification of participants.
-     * [```02-uploads-anonymized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/02-uploads-anonymized-sources-models.zip): Published, contains anonymous code.
-     * [```03-uploads-sanitized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/03-uploads-sanitized-sources-models.zip): Published, contains anonymous code where trivial mistakes have been fixed.
+     * [```02-uploads-anonymized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/02-uploads-anonymized-sources-models.zip): Published, contains anonymous code.  
+MD5 Checksum: ```3d24150623c5c31e089618be3fecd608```
+     * [```03-uploads-sanitized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/03-uploads-sanitized-sources-models.zip): Published, contains anonymous code where trivial mistakes have been fixed.  
+MD5 Checksum: ```d1611d3c20702711d04366dfef6da20a```
  * Unzip the downloaded zip file and extract it.  
 Make sure the ```UPLOADDIR``` variable correctly references the submissions source codes.
  * Update the ```XOXTESTDIR``` and ```BSTESTDIR``` variables to match the location of your cloned [BookStore and Xox Rest Test applications](#script-dependencies).
