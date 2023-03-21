@@ -79,10 +79,11 @@ This file is consumed as input data by the [RestifyJupyter](https://github.com/m
 Ideally anyone who wants to validate our study methodology and results will run the script on their own machine and replicate our findings.  
 For reference and convenience, prepared test results are also available online:
 
- * [Full test run, without subsequent read verifications.](https://www.cs.mcgill.ca/~mschie3/restify/testreports/917cfd78741a1c9ddc42896ed6192015/testreport--2023-03-20--17h57m06s--no-state-checks--all-submissions.zip) (This one was used for further study analysis, see [explanation in Jupyter project](https://github.com/m5c/RestifyJupyter).) 
-MD5 Checksum: ```917cfd78741a1c9ddc42896ed6192015```
- * [Full test run, with subsequent read verifications.](https://www.cs.mcgill.ca/~mschie3/restify/testreports/9d7324d8704104a582499486719a5e99/testreport--2023-03-14--12h40m41s--with-state-checks--all-submissions.zip)  
-MD5 Checksum: ```9d7324d8704104a582499486719a5e99```
+ * [Full test run, without subsequent read verifications.](https://www.cs.mcgill.ca/~mschie3/restify/testreports/917cfd78741a1c9ddc42896ed6192015/testreport--2023-03-20--17h57m06s--no-state-checks--all-submissions.zip)
+    * This one was used for further study analysis, see [explanation in Jupyter project](https://github.com/m5c/RestifyJupyter).
+    * MD5 Checksum: ```917cfd78741a1c9ddc42896ed6192015```
+ * [Full test run, with subsequent read verifications.](https://www.cs.mcgill.ca/~mschie3/restify/testreports/9d7324d8704104a582499486719a5e99/testreport--2023-03-14--12h40m41s--with-state-checks--all-submissions.zip)
+    * MD5 Checksum: ```9d7324d8704104a582499486719a5e99```
 
 
 ## Development
@@ -107,5 +108,5 @@ This provides automatic execution of the [Shell Check](https://www.shellcheck.ne
    * Submission REST unit test scenarios:
      * [BookStore REST Tests](https://github.com/m5c/BookStoreRestTest)
      * [Xox REST Tests](https://github.com/m5c/XoxStudyRestTest)
-   * Jupyter Notebook for full study analysis and description: [RestifyAnalyzer](https://github.com/m5c/RestifyAnalyzer)
+   * Jupyter Notebook for full study analysis and description: [RestifyJupyter](https://github.com/m5c/RestifyJupyte)
 * Research Ethics Board Advisor: Lynda McNeil
