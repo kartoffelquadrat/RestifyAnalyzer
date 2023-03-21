@@ -108,5 +108,5 @@ This provides automatic execution of the [Shell Check](https://www.shellcheck.ne
    * Submission REST unit test scenarios:
      * [BookStore REST Tests](https://github.com/m5c/BookStoreRestTest)
      * [Xox REST Tests](https://github.com/m5c/XoxStudyRestTest)
-   * Jupyter Notebook for full study analysis and description: [RestifyJupyter](https://github.com/m5c/RestifyJupyte)
+   * Jupyter Notebook for full study analysis and description: [RestifyJupyter](https://github.com/m5c/RestifyJupyter)
 * Research Ethics Board Advisor: Lynda McNeil
