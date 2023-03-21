@@ -45,9 +45,9 @@ Every test is executed in perfect isolation, that is to say every individual uni
 Note, there are several versions of the bundle: ```submission.zip```
      * ```00-uploads-untampered-sources-models-videos.zip```: Not published, contains code and screencasts that allow identification of participants.
      * ```01-uploads-untampered-sources-models.zip```: Not published, contains code and metadata that allow identification of participants.
-     * [```02-uploads-anonymized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/02-uploads-anonymized-sources-models.zip): Published, contains anonymous code.  
+     * [```02-uploads-anonymized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/submissions/02-uploads-anonymized-sources-models.zip): Published, contains anonymous code.  
 MD5 Checksum: ```3d24150623c5c31e089618be3fecd608```
-     * [```03-uploads-sanitized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/03-uploads-sanitized-sources-models.zip): Published, contains anonymous code where trivial mistakes have been fixed.  
+     * [```03-uploads-sanitized-sources-models.zip```](https://www.cs.mcgill.ca/~mschie3/restify/submissions/03-uploads-sanitized-sources-models.zip): Published, contains anonymous code where trivial mistakes have been fixed.  
 MD5 Checksum: ```d1611d3c20702711d04366dfef6da20a```
  * Unzip the downloaded zip file and extract it.  
 Make sure the ```UPLOADDIR``` variable correctly references the submissions source codes.
@@ -64,6 +64,26 @@ Command line options:
 This file is consumed as input data by the [RestifyJupyter](https://github.com/m5c/RestifyJupyter) project.
    * Human-readable markdown report: *report-folder*/report.md
  This file also contains hotlinks to relevant code snippets, in case a subsequent manual inspection is required.
+
+### Storing Results on Server
+
+ * If you have the ssh key, you can archive the test reports on mcgill servers.
+ * Use: ```./archive-results name-of-generated-test-folder```
+    * Creates a zip file
+    * Computes MD5 hash
+    * Stores file on server
+    * Prints public URL
+
+## Results
+
+Ideally anyone who wants to validate our study methodology and results will run the script on their own machine and replicate our findings.  
+For reference and convenience, prepared test results are also available online:
+
+ * [Full test run, without subsequent read verifications.](https://www.cs.mcgill.ca/~mschie3/restify/testreports/917cfd78741a1c9ddc42896ed6192015/testreport--2023-03-20--17h57m06s--no-state-checks--all-submissions.zip) (This one was used for further study analysis, see [explanation in Jupyter project](https://github.com/m5c/RestifyJupyter).) 
+MD5 Checksum: ```917cfd78741a1c9ddc42896ed6192015```
+ * [Full test run, with subsequent read verifications.](https://www.cs.mcgill.ca/~mschie3/restify/testreports/9d7324d8704104a582499486719a5e99/testreport--2023-03-14--12h40m41s--with-state-checks--all-submissions.zip)  
+MD5 Checksum: ```9d7324d8704104a582499486719a5e99```
+
 
 ## Development
 
