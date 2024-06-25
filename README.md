@@ -2,6 +2,8 @@
 
 Automated reliable testing of RESTify experiment submissions.
 
+ > **THIS VERSION IS A STATIC SNAPSHOT, CREATED FOR THE MODELS ARTIFACT EVALUATION. UNLESS YOU ARE A REVIEWER, PLEASE [ACCESS THE ORIGINAL ARTIFACT](https://github.com/m5c/RestifyAnalyzer)**
+
 ## About
 
 This software is a tool written specifically for analysis of the data acquired throughout the RESTify experiment.
