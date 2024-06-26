@@ -71,6 +71,10 @@ This file is consumed as input data by the [RestifyJupyter](https://github.com/m
 Use IntelliJ IDEA, make sure to enable the [Shell Script](https://plugins.jetbrains.com/plugin/13122-shell-script) plugin.  
 This provides automatic execution of the [Shell Check](https://www.shellcheck.net/) static code linter and enforces a minimum of code style and readability.
 
+## License
+
+This software is under open source [MIT License](LICENSE.txt).
+
 ## Authors
 
 * Principal Investigator: [Maximilian Schiedermeier](https://www.cs.mcgill.ca/~mschie3/)
